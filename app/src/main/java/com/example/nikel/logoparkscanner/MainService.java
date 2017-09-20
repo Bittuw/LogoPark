@@ -81,6 +81,8 @@ public class MainService extends Service {
         registerReceiver(mReceiver, new IntentFilter(MESSAGE_TAG));
     }*/
 
+
+
     public void onDestroy() {
         Log.d(LOG_TAG, "onDestroy");
         unregisterReceiver(mReceiver);

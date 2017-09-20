@@ -6,25 +6,16 @@
     <string name="action_manual">Manual</string>
     <string name="ok">OK</string>
     <string name="exit">EXIT</string>
-    <string name="dialog_text">Text</string>
-
-    <string-array name="mainActivity">
-        <item>@string/app_name</item>
-    </string-array>
-
-    <string-array name="MenuItems">
-        <item>@string/action_settings</item>
-        <item>@string/action_manual</item>
-        <item>@string/action_about</item>
-        <item>@string/ok</item>
-        <item>@string/exit</item>
-    </string-array>
-
-    <string-array name="Manual">
-        <item>@string/dialog_title</item>
-        <item>@string/dialog_text</item>
-        <item>@string/ok</item>
-        <item>@string/exit</item>
-    </string-array
-
+    <string name="dialog_text">
+        "Text for manual ksjdbfskdjbgkdfgbdflhgdflkghdnflgjndf
+        sdkjgbkjdsgbdfjkgbdjlgbdfjlgbdflgb
+        sldjgnlkdfjgbldjfg;aldshgflkjsdfhg;dfjg;dfgh;skdgnsdjng
+        nsgkjdfkljghndf;kgsdkhgkashbg;jlaglkdhfjsahgljadslj
+        sdglkhsdljkgnfjlgawpojfsidhlisdhg;isdhg;sdhgsdihgs
+        sdlghlsdhgo'dsgj;sdklhg;sdlnfh;iahsngljadshi;gjsad;gjs
+        sldjghpierhjowq;hniphjedjsngkjdsfhgfdgndf
+        dfljgnjdfgnfhkgldfkngldfkngldf
+        sjghsojdhgjsdfhgjksdfhgkjdfgjldfghdfjhgdjfgh
+        dflgldfhgdfjgdfj"
+    </string>
 </resources>

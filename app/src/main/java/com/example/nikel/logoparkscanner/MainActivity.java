@@ -18,7 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements WebFragment.FragmentEvents {
+public class MainActivity extends AppCompatActivity implements WebFragment.FragmentEvents, DiaFragment.NoticeDialogListner {
 
     private DialogFragment dlg;
     private WebFragment fragment; // TODO Фрагмен веб формы
@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
 
     private SharedPreferences mPref;
     private static final String IS_FIRST_LAUNCH = "IsFirstLaunch";
+    private static final String IS_FIRST = "IsFirst";
 
     private TextView Type, Code; //Тип и код штрих-кода
     private ProgressBar Progressbar;
@@ -34,46 +35,16 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
     private String url = "https://lgprk.ru/api/v1/scan";
     private String LOG_TAG = "MainActivity";
 
-    /*private static enum BarcodeTypes { // TODO
-        unknown(0),all(-1),ean13(11),ean8(10),code39(1),code93(7),code128(3),qr(28),pdf417(17),interleaved2of5(6),upca(-117),upce(9);
-
-        private final int code;
-        private BarcodeTypes(int code) {
-            this.code = code;
-        }
-        public static BarcodeTypes decodeType(int value) {
-            for(BarcodeTypes t : values())
-                if(t.code == value)
-                    return t;
-            return unknown;
-        }
-    }*/
-
-   /* private BroadcastReceiver CORE_EVENT_RECEIVER = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            *//*byte[] barcode = intent.getByteArrayExtra("barocode");
-            int barocodelen = intent.getIntExtra("length", 0);
-            byte temp = intent.getByteExtra("barcodeType", (byte) 0);
-            code = new String(barcode,0, barocodelen);
-            type = BarcodeTypes.decodeType(temp).name();*//*
-            type = intent.getStringExtra("Type");
-            code = intent.getStringExtra("Code");
-
-            Code.setText(code);
-            Type.setText(type);
-            Progressbar.setVisibility(View.VISIBLE);
-            WebFragment fragment = (WebFragment) getFragmentManager().findFragmentById(R.id.contentFragment);
-            manager = getFragmentManager().beginTransaction();
-            manager.show(fragment).commit();
-            fragment.DownloadInfo(url, code);
-        }
-    };*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPref = getPreferences(MODE_PRIVATE);
+
+        mPref = getSharedPreferences(IS_FIRST_LAUNCH, MODE_PRIVATE);
+        if (!mPref.contains(IS_FIRST)) {
+            dlg = new DiaFragment();
+            dlg.show(getFragmentManager(), "dlg");
+        }
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -165,6 +136,15 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
     protected void onDestroy() {
         Log.d(LOG_TAG, "onDestroy");
         super.onDestroy();
+    }
+
+    public void onDialogPositiveClick() {
+        startService(new Intent(this, MainService.class));
+    }
+
+    public void onDialogNegativeClick() {
+        stopService(new Intent(this, MainService.class));
+        this.finish();
     }
 
     // События активити
