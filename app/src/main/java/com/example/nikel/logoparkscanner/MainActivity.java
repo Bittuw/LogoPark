@@ -25,17 +25,28 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
     private FragmentTransaction manager;
 
     private SharedPreferences mPref;
-    /*private static final String IS_FIRST_LAUNCH = "IsFirstLaunch";
-    private static final String IS_FIRST = "IsFirst";
-    private static final String LAUNCH = "Y";*/
 
     private TextView Type, Code; //Тип и код штрих-кода
     private ProgressBar Progressbar;
 
-    private String type, code;
+    private String type, code;s
     private String url = "https://lgprk.ru/api/v1/scan";
     private String LOG_TAG = "MainActivity";
 
+
+    private static class PARAMS {
+
+        public static String NAME() {
+            return PARAMS;
+        }
+
+        private String name() {
+            return this.getClass().getName();
+        }
+        public static final int Authorizate = 1;
+        public static final int ReceiveData = 2;
+        public static final int StartReceiveCasts = 3;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,6 +157,8 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
         SharedPreferences.Editor editor = mPref.edit();
         editor.putString(IS_FIRST, YES);
         editor.apply();
+        Intent intent = new Intent(this, MainService.class);
+        intent.putExtra(PARAMS.NAME(), PARAMS.Authorizate );
         startService(new Intent(this, MainService.class)); //Настройка первого 1 доступа
     }
 
