@@ -18,16 +18,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements WebFragment.FragmentEvents, DiaFragment.NoticeDialogListner {
+public class MainActivity extends AppCompatActivity implements WebFragment.FragmentEvents, DiaFragment.NoticeDialogListner, MainInterface{
 
     private DialogFragment dlg;
     private WebFragment fragment; // TODO Фрагмен веб формы
     private FragmentTransaction manager;
 
     private SharedPreferences mPref;
-    private static final String IS_FIRST_LAUNCH = "IsFirstLaunch";
+    /*private static final String IS_FIRST_LAUNCH = "IsFirstLaunch";
     private static final String IS_FIRST = "IsFirst";
-    private static final String LAUNCH = "Y";
+    private static final String LAUNCH = "Y";*/
 
     private TextView Type, Code; //Тип и код штрих-кода
     private ProgressBar Progressbar;
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
 
     public void onDialogPositiveClick() {
         SharedPreferences.Editor editor = mPref.edit();
-        editor.putString(IS_FIRST, LAUNCH);
+        editor.putString(IS_FIRST, YES);
         editor.apply();
         startService(new Intent(this, MainService.class)); //Настройка первого 1 доступа
     }
