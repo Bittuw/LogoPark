@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
     private SharedPreferences mPref;
     private static final String IS_FIRST_LAUNCH = "IsFirstLaunch";
     private static final String IS_FIRST = "IsFirst";
+    private static final String LAUNCH = "Y";
 
     private TextView Type, Code; //Тип и код штрих-кода
     private ProgressBar Progressbar;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        startService(new Intent(this, MainService.class));
+        //startService(new Intent(this, MainService.class));
     }
 
     @Override
@@ -95,11 +96,13 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
     @Override
     public void onResume(){
         super.onResume();
-        Log.d(LOG_TAG, "onResume");
-        Intent intent = getIntent();
-        Toast.makeText(this, type, Toast.LENGTH_LONG).show();
-        Type.setText(intent.getStringExtra("type"));
-        Code.setText(intent.getStringExtra("code"));
+        if (!mPref.contains(IS_FIRST)) {
+            Log.d(LOG_TAG, "onResume");
+            Intent intent = getIntent();
+            Toast.makeText(this, type, Toast.LENGTH_LONG).show();
+            Type.setText(intent.getStringExtra("type"));
+            Code.setText(intent.getStringExtra("code"));
+        }
 
     }
 
@@ -115,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
     }
     @Override
     public void onNewIntent(Intent intent) { // TODO Получение новый данных (Если активити запущена)
+        Log.d(LOG_TAG, "onNewIntent");
         super.onNewIntent(intent);
         /*type = intent.getStringExtra("type");
         code = intent.getStringExtra("code");*/
@@ -139,11 +143,13 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
     }
 
     public void onDialogPositiveClick() {
-        startService(new Intent(this, MainService.class));
+        SharedPreferences.Editor editor = mPref.edit();
+        editor.putString(IS_FIRST, LAUNCH);
+        editor.apply();
+        startService(new Intent(this, MainService.class)); //Настройка первого 1 доступа
     }
 
     public void onDialogNegativeClick() {
-        stopService(new Intent(this, MainService.class));
         this.finish();
     }
 

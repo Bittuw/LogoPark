@@ -3,12 +3,10 @@ package com.example.nikel.logoparkscanner;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
@@ -19,7 +17,6 @@ import android.widget.Toast;
 
 public class DiaFragment extends DialogFragment implements View.OnClickListener {
 
-    private Button OK_Btn, EXIT_Btn;
     private CheckBox CheckM;
     private NoticeDialogListner mListner;
 
@@ -31,8 +28,6 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener 
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         View v = inflater.inflate(R.layout.dialog, null);
-        OK_Btn = v.findViewById(R.id.OK_BUTTON);
-        EXIT_Btn = v.findViewById(R.id.EXIT_Button);
         CheckM = v.findViewById(R.id.CheckManual);
 
         builder
@@ -44,6 +39,7 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener 
 
         mListner = (NoticeDialogListner) getActivity();
 
+        setCancelable(false);
 
         return builder.create();
     }

@@ -66,7 +66,7 @@ public class MainService extends Service {
         Handler mHandle = new Handler(mLooper);
         mReceiver = new MyReceiver();
         registerReceiver(mReceiver, new IntentFilter(MESSAGE_TAG), null, mHandle);
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     @Nullable
@@ -74,13 +74,6 @@ public class MainService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-    /*@Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-        mReceiver = new MyReceiver();
-        registerReceiver(mReceiver, new IntentFilter(MESSAGE_TAG));
-    }*/
-
 
 
     public void onDestroy() {
