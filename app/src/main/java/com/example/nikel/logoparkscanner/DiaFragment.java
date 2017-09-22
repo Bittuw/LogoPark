@@ -28,6 +28,7 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener 
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         View v = inflater.inflate(R.layout.dialog, null);
+
         CheckM = v.findViewById(R.id.CheckManual);
 
         builder
@@ -44,22 +45,10 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener 
         return builder.create();
     }
 
+
+
     public void onClick(View v) {
-        /*switch (v.getId()) {
-            case R.id.OK_BUTTON:
-                if(CheckM.isChecked()) {
-                    mListner.onDialogPositiveClick(this);
-                    this.dismiss();
-                }
-                Toast.makeText(getActivity(), "Необходимо подтвердить прочтение интрукции", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.EXIT_Button:
-                mListner.onDialogNegativeClick(this);
-                dismiss();
-                break;
-            default:
-                break;
-        }*/
+
     }
 
     @Override
@@ -94,6 +83,10 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener 
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
     }
+
+    /*public Dialog chooseDialog(int choose) {
+        return dialog;
+    }*/
 
     public interface NoticeDialogListner {
         public void onDialogPositiveClick();

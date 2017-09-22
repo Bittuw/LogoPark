@@ -10,14 +10,16 @@ import android.widget.Toast;
  * Created by nikel on 13.09.2017.
  */
 
-public class BroadcastReceiverReboot extends BroadcastReceiver {
+public class BroadcastReceiverReboot extends BroadcastReceiver implements MainInterface{
 
     final String LOG_TAG = "Reboot";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(LOG_TAG, "onReceive " + intent.getAction());
-        context.startService(new Intent(context, MainService.class));
-        Toast.makeText(context.getApplicationContext(), "onReceive", Toast.LENGTH_LONG).show();
+        Intent in = new Intent(context, MainService.class);
+        in.setAction(IntentParams.StartRecCas);
+        context.startService(in);
+        Toast.makeText(context.getApplicationContext(), "onReceive " + in.getAction(), Toast.LENGTH_LONG).show();
     }
 }

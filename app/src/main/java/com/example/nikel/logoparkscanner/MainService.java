@@ -10,25 +10,32 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
+import android.os.Process;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by nikel on 13.09.2017.
  */
 
-public class MainService extends Service {
+public class MainService extends Service implements MainInterface{
 
     private SharedPreferences mPref;
     BroadcastReceiver mReceiver;
     private final String MESSAGE_TAG = "urovo.rcv.message";
-    private final String MESSAGE_APP ="FromService";
 
-    private static final String IS_FIRST_LAUNCH = "IsFirstLaunch";
-    private static final String IS_FIRST = "IsFirst";
-    private static final String LAUNCH = "Y";
-
-    private HandlerThread receiveThread, runnableThread;
+    private HandlerThread mThread;
+    private Handler mHanlder;
     private String type, code;
     final String LOG_TAG = "MainService";
 
@@ -49,19 +56,35 @@ public class MainService extends Service {
 
     public void onCreate() {
         super.onCreate();
-        mPref = getSharedPreferences(IS_FIRST_LAUNCH, MODE_PRIVATE);
         Log.d(LOG_TAG, "onCreate");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(LOG_TAG, "onStartCommand" + intent.getAction());
-        receiveThread = new HandlerThread("BroadcastThread");
-        receiveThread.start();
-        Looper mLooper = receiveThread.getLooper();
-        Handler mHandle = new Handler(mLooper);
-        mReceiver = new MyReceiver();
-        registerReceiver(mReceiver, new IntentFilter(MESSAGE_TAG), null, mHandle);
+        Log.d(LOG_TAG, "onStartCommand " + intent.getAction());
+
+        String action = intent.getAction();
+
+        switch (action) {
+            case IntentParams.Auth:
+                Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
+
+                getData(action, intent.getStringExtra("URL"));
+                break;
+            case IntentParams.RecD:
+                Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
+                getData(action, intent.getStringExtra("URL"));
+                break;
+            case IntentParams.StartRecCas:
+                mThread = new HandlerThread("recThread");
+                mThread.start();
+                Looper mLooper = mThread.getLooper();
+                mHanlder = new Handler(mLooper);
+                registerReceiver(mReceiver, new IntentFilter(MESSAGE_TAG), null, mHanlder);
+                break;
+            default:
+                break;
+        }
         return START_REDELIVER_INTENT;
     }
 
@@ -71,11 +94,18 @@ public class MainService extends Service {
         return null;
     }
 
+    private void getData(String action, String path) {
+
+    }
 
     public void onDestroy() {
+        super.onDestroy();
         Log.d(LOG_TAG, "onDestroy");
-        unregisterReceiver(mReceiver);
-        receiveThread.quitSafely();
+
+        if (mThread != null) {
+            unregisterReceiver(mReceiver);
+            mThread.quitSafely();
+        }
     }
 
     private class MyReceiver extends BroadcastReceiver {
@@ -101,11 +131,6 @@ public class MainService extends Service {
 
         }
     }
-
-    public interface NoticeServiceListner {
-        public void AuthorizationNotice();
-    }
-
 
 }
 
