@@ -19,7 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements WebFragment.FragmentEvents, DiaFragment.NoticeDialogListner, MainInterface{
+public class MainActivity extends AppCompatActivity implements WebFragment.FragmentEvents, DiaFragment.NoticeDialogListener, MainInterface{
 
     private DialogFragment dlg;
 

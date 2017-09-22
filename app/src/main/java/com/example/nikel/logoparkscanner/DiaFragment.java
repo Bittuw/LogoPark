@@ -15,10 +15,10 @@ import android.widget.Toast;
  * Created by nikel on 19.09.2017.
  */
 
-public class DiaFragment extends DialogFragment implements View.OnClickListener {
+public class DiaFragment extends DialogFragment implements View.OnClickListener, MainInterface{
 
     private CheckBox CheckM;
-    private NoticeDialogListner mListner;
+    private NoticeDialogListener mListner;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -26,23 +26,30 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
+        int nDialog = getArguments().getInt("dialog");
+        switch (nDialog) {
+            case ManualDialog:
+                View v = inflater.inflate(R.layout.dialog, null);
 
-        View v = inflater.inflate(R.layout.dialog, null);
+                CheckM = v.findViewById(R.id.CheckManual);
 
-        CheckM = v.findViewById(R.id.CheckManual);
+                builder
+                        .setView(v)
+                        .setCancelable(false)
+                        .setTitle(R.string.dialog_title)
+                        .setPositiveButton(R.string.ok, null)
+                        .setNegativeButton(R.string.exit, null);
 
-        builder
-                .setView(v)
-                .setCancelable(false)
-                .setTitle(R.string.dialog_title)
-                .setPositiveButton(R.string.ok, null)
-                .setNegativeButton(R.string.exit, null);
+                mListner = (NoticeDialogListener) getActivity();
 
-        mListner = (NoticeDialogListner) getActivity();
+                setCancelable(false);
 
-        setCancelable(false);
-
-        return builder.create();
+                return builder.create();
+            case ConfirmDialog:
+                return builder.create();
+            default:
+                return builder.create();
+        }
     }
 
 
@@ -84,11 +91,7 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener 
         super.onDismiss(dialog);
     }
 
-    /*public Dialog chooseDialog(int choose) {
-        return dialog;
-    }*/
-
-    public interface NoticeDialogListner {
+    public interface NoticeDialogListener {
         public void onDialogPositiveClick();
         public void onDialogNegativeClick();
     }
