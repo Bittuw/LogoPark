@@ -5,10 +5,12 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -17,8 +19,10 @@ import android.widget.Toast;
 
 public class DiaFragment extends DialogFragment implements View.OnClickListener, MainInterface{
 
-    private CheckBox CheckM;
+    private CheckBox mCheck;
+    private TextView mTextView;
     private NoticeDialogListener mListner;
+    private String LOG_TAG = "DialogFragment";
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -26,15 +30,17 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        int nDialog = getArguments().getInt("dialog");
-        switch (nDialog) {
+        int tDialog = getArguments().getInt(TypeOfDialog);
+        switch (tDialog) {
             case ManualDialog:
-                View v = inflater.inflate(R.layout.dialog, null);
+                View md = inflater.inflate(R.layout.manual_dialog, null);
 
-                CheckM = v.findViewById(R.id.CheckManual);
+                mTextView = md.findViewById(R.id.Text);
+                mCheck = md.findViewById(R.id.CheckManual);
+                mTextView.setText(R.string.manual_dialog_text);
 
                 builder
-                        .setView(v)
+                        .setView(md)
                         .setCancelable(false)
                         .setTitle(R.string.dialog_title)
                         .setPositiveButton(R.string.ok, null)
@@ -44,12 +50,34 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
 
                 setCancelable(false);
 
-                return builder.create();
+                break;
+
             case ConfirmDialog:
-                return builder.create();
+
+                View cd = inflater.inflate(R.layout.auth_dialog, null);
+
+                mTextView = cd.findViewById(R.id.Text);
+                mCheck = cd.findViewById(R.id.CheckManual);
+                mTextView.setText(R.string.confirm_dialog_text);
+                mCheck.setVisibility(View.INVISIBLE);
+
+                builder
+                        .setView(cd)
+                        .setCancelable(false)
+                        .setTitle(R.string.dialog_title)
+                        .setPositiveButton(R.string.ok, null)
+                        .setNegativeButton(R.string.exit, null);
+
+                mListner = (NoticeDialogListener) getActivity();
+
+                setCancelable(false);
+
+                break;
             default:
+                Log.e(LOG_TAG, "onCreateDialog");
                 return builder.create();
         }
+        return builder.create();
     }
 
 
@@ -68,7 +96,7 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
 
         positive.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(CheckM.isChecked()) {
+                if(mCheck.isChecked()) {
                     Toast.makeText(getActivity(), "Мануал принят", Toast.LENGTH_LONG).show();
                     mListner.onDialogPositiveClick();
                     dismiss();
@@ -91,7 +119,7 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
         super.onDismiss(dialog);
     }
 
-    public interface NoticeDialogListener {
+    public interface NoticeDialogListener { //отправка типа диалога
         public void onDialogPositiveClick();
         public void onDialogNegativeClick();
     }

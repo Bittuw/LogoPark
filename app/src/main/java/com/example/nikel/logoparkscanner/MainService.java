@@ -10,17 +10,14 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Message;
-import android.os.Process;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -34,9 +31,11 @@ public class MainService extends Service implements MainInterface{
     BroadcastReceiver mReceiver;
     private final String MESSAGE_TAG = "urovo.rcv.message";
 
-    private HandlerThread mThread;
-    private Handler mHanlder;
+    private HandlerThread rThread, mThread;
+    private Handler rHanlder, mHandler;
+    private InternetThread GET;
     private String type, code;
+
     final String LOG_TAG = "MainService";
 
     private static enum BarcodeTypes {
@@ -57,6 +56,10 @@ public class MainService extends Service implements MainInterface{
     public void onCreate() {
         super.onCreate();
         Log.d(LOG_TAG, "onCreate");
+        mThread = new HandlerThread("InternetThread");
+        mThread.start();
+        mHandler = new Handler(mThread.getLooper());
+        GET = new InternetThread();
     }
 
     @Override
@@ -68,7 +71,6 @@ public class MainService extends Service implements MainInterface{
         switch (action) {
             case IntentParams.Auth:
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
-
                 getData(action, intent.getStringExtra("URL"));
                 break;
             case IntentParams.RecD:
@@ -76,11 +78,15 @@ public class MainService extends Service implements MainInterface{
                 getData(action, intent.getStringExtra("URL"));
                 break;
             case IntentParams.StartRecCas:
-                mThread = new HandlerThread("recThread");
-                mThread.start();
-                Looper mLooper = mThread.getLooper();
-                mHanlder = new Handler(mLooper);
-                registerReceiver(mReceiver, new IntentFilter(MESSAGE_TAG), null, mHanlder);
+                if (rHanlder != null) {
+                    rThread = new HandlerThread("ReceiveThread");
+                    rThread.start();
+                    rHanlder = new Handler(rThread.getLooper());
+                    registerReceiver(mReceiver, new IntentFilter(MESSAGE_TAG), null, rHanlder);
+                }
+                else {
+                    this.stopSelf(startId);
+                }
                 break;
             default:
                 break;
@@ -95,16 +101,60 @@ public class MainService extends Service implements MainInterface{
     }
 
     private void getData(String action, String path) {
+        GET.setPath(path);
+        mHandler.post(GET);
+    }
 
+    private class InternetThread implements Runnable {
+        String path;
+
+        public InternetThread() {
+
+        }
+
+        @Override
+        public void run() {
+            BufferedReader reader = null;
+            try{
+                java.net.URL url=new URL(path);
+                HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setReadTimeout(10000);
+                connection.connect();
+                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder buf = new StringBuilder();
+                String line;
+
+                while ((line=reader.readLine()) != null) {
+                    buf.append(line + "\n");
+                }
+
+                Intent mIntent = new Intent(ConfirmAuth);
+                mIntent.putExtra("Data", buf.toString());
+                LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(mIntent);
+                //return(buf.toString());
+            }
+            catch (IOException ex) {
+                Log.e(LOG_TAG, ex.getMessage());
+            }
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        public String getPath() {
+            return this.path;
+        }
     }
 
     public void onDestroy() {
         super.onDestroy();
         Log.d(LOG_TAG, "onDestroy");
 
-        if (mThread != null) {
+        if (rThread != null) {
             unregisterReceiver(mReceiver);
-            mThread.quitSafely();
+            rThread.quitSafely();
         }
     }
 

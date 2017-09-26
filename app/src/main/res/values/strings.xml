@@ -7,7 +7,8 @@
     <string name="ok">OK</string>
     <string name="exit">EXIT</string>
     <string name="checkBox">Confirm</string>
-    <string name="dialog_text">
+
+    <string name="manual_dialog_text">
         "Text for manual ksjdbfskdjbgkdfgbdflhgdflkghdnflgjndf
         sdkjgbkjdsgbdfjkgbdjlgbdfjlgbdflgb
         sldjgnlkdfjgbldjfg;aldshgflkjsdfhg;dfjg;dfgh;skdgnsdjng
@@ -19,4 +20,9 @@
         sjghsojdhgjsdfhgjksdfhgkjdfgjldfghdfjhgdjfgh
         dflgldfhgdfjgdfj"
     </string>
+
+    <string name="confirm_dialog_text">
+        confitm_text
+    </string>
+
 </resources>
