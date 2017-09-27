@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,23 +9,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="New_Nick" />
+        android:hint="Введите никнейм"
+        android:inputType="textPersonName" />
 
     <EditText
-        android:id="@+id/Pass"
+        android:id="@+id/Password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Password" />
+        android:hint="Введите новый пароль"
+        android:inputType="textPassword" />
 
     <EditText
-        android:id="@+id/Conf_Pass"
+        android:id="@+id/Password_rep"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Confirm_Password" />
+        android:hint="Повоторите пароль"
+        android:inputType="textPassword" />
 
+    <EditText
+        android:id="@+id/Custom_pass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Одноразовый пароль"
+        android:inputType="textPersonName" />
 </LinearLayout>

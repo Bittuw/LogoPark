@@ -96,7 +96,7 @@
 
                 <fragment
                     android:id="@+id/contentFragment"
-                    android:name="com.example.nikel.logoparkscanner.WebFragment"
+                    android:name="com.example.nikel.logoparkscanner.Fragments.WebFragment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />

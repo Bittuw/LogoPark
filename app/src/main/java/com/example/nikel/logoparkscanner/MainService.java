@@ -78,7 +78,7 @@ public class MainService extends Service implements MainInterface{
                 getData(action, intent.getStringExtra("URL"));
                 break;
             case IntentParams.StartRecCas:
-                if (rHanlder != null) {
+                if (rHanlder == null) {
                     rThread = new HandlerThread("ReceiveThread");
                     rThread.start();
                     rHanlder = new Handler(rThread.getLooper());

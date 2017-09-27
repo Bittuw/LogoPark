@@ -12,25 +12,30 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements WebFragment.FragmentEvents, DiaFragment.NoticeDialogListener, MainInterface{
+import com.example.nikel.logoparkscanner.Fragments.AuthFragment;
+import com.example.nikel.logoparkscanner.Fragments.DiaFragment;
+import com.example.nikel.logoparkscanner.Fragments.WebFragment;
 
-    private DialogFragment dlg;
+public class MainActivity extends AppCompatActivity implements AuthFragment.NoticeListener, MainInterface{
 
-    private WebFragment fragment; // TODO Фрагмен веб формы
+
+    private WebFragment webFragment; // TODO Фрагмен веб формы
+
+    private AuthFragment authFragment; // TODO авторизация и мануал
+
+
     private FragmentTransaction manager;
 
     private SharedPreferences mPref;
 
     private boolean isReadInstruct, isAuthorized;
 
-    private TextView Type, Code; //Тип и код штрих-кода
-    private ProgressBar Progressbar;
 
     private String url = "https://lgprk.ru/api/v1/scan";
     private String LOG_TAG = "MainActivity";
@@ -41,12 +46,12 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
         super.onCreate(savedInstanceState);
 
         getAppInfo();
-        checkReadInstruct();
-        checkIsAuthorized();
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        MakeFragment();
     }
 
     @Override
@@ -106,49 +111,52 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
     }
 
     @Override
-    public void downloaded() {
-        manager = getFragmentManager().beginTransaction();
-        manager.show(fragment).commit();
-        Progressbar.setVisibility(View.INVISIBLE);
-    }
-
-    @Override
     protected void onDestroy() {
         Log.d(LOG_TAG, "onDestroy");
         super.onDestroy();
     }
 
-    public void onDialogPositiveClick() { // Подтверждение прочтения мануала
+    /*public void onDialogPositiveClick() { // Подтверждение прочтения мануала
         SharedPreferences.Editor editor = mPref.edit();
         editor.putString(IS_FIRST_LAUNCH, YES);
         editor.apply();
-        Intent intent = new Intent(this, MainService.class);
+        *//*Intent intent = new Intent(this, MainService.class);
         intent.putExtra((new IntentParams()).getClass().getName(), IntentParams.Authorizate);
-        startService(new Intent(this, MainService.class)); //Настройка первого 1 доступа
+        startService(new Intent(this, MainService.class)); //Настройка первого 1 доступа*//*
     }
 
     public void onDialogNegativeClick() { //Без подтверждения прочтения мануала
         this.finish();
-    }
+    }*/
 
-    // События активити
-    public interface ActivityEvents {
-        public void Started();
-    }
-
-    private void checkReadInstruct() {
-        if (!isReadInstruct) {
-            this.dlg = new DiaFragment();
-
-            Bundle mBundle = new Bundle();
-            mBundle.putInt(TypeOfDialog , ManualDialog);
-
-            this.dlg.setArguments(mBundle);
-            this.dlg.show(getFragmentManager(), "dlg");
+    @Override
+    public void onAuthPositiveClick(int TypeOfDialog) {
+        switch (TypeOfDialog) {
+            case ManualDialog:
+                SharedPreferences.Editor editor =mPref.edit();
+                editor.putString(IS_FIRST_LAUNCH, YES);
+                editor.apply();
+                break;
+            case ConfirmDialog:
+                break;
+            default:
+                break;
         }
     }
 
-    private void getAppInfo() {
+    @Override
+    public void onAuthNegativeClick(int TypeOfDialog) {
+        switch (TypeOfDialog) {
+            case ManualDialog:
+                break;
+            case ConfirmDialog:
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void getAppInfo() { // TODO инициализация параметров из файла
 
         this.mPref = getSharedPreferences(MainFileInfo, MODE_PRIVATE);
 
@@ -160,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
         }
 
         if (this.mPref.getString(IS_AUTHARIZED, NO) == YES) {
-            this.isAuthorized = true;
+            this.isAuthorized = true; // Ключи и тд.
         }
         else {
             this.isAuthorized = false;
@@ -168,21 +176,41 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
 
     }
 
-    private void findAllView() {
-        this.Type = (TextView)findViewById(R.id.Type);
+    private void MakeFragment() {
+        if (!isReadInstruct || !isAuthorized) {
+            Bundle mBundle = new Bundle();
+            mBundle.putBoolean(isRead, isReadInstruct);
+            mBundle.putBoolean(isAuth, isAuthorized);
+            authFragment = new AuthFragment(); // Возможен перенос в функцию для автовхода
+            authFragment.setArguments(mBundle);
+            manager = getFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, authFragment);
+            manager.commit();
+        }
+        else {
+            /*
+            manager = getFragmentManager().beginTransaction()
+                    .replace(R.id.contentFragment, )*/ // Создание основного фрагмента
+        }
+    }
+
+    private void findAllView() { // TODO поиск всех отображаемых объектов
+        /*this.Type = (TextView)findViewById(R.id.Type);
         this.Code = (TextView)findViewById(R.id.Code);
         this.Progressbar = (ProgressBar)findViewById(R.id.progressBar);
 
+
         this.fragment = (WebFragment) getFragmentManager().findFragmentById(R.id.contentFragment); // Выбор фрагмента нужно настроить
         this.manager = getFragmentManager().beginTransaction();
-        this.manager.hide(fragment).commit();
+        this.manager.hide(fragment).commit();*/
     }
 
-    private void checkIsAuthorized() {
+   /* private boolean checkIsAuthorized() {
         if (true) { // this.isAuthorized
             Intent mIntent = new Intent(this, MainService.class);
             mIntent.setAction(IntentParams.StartRecCas);
             startService(mIntent);
+            return true;
         }
         else {
 
@@ -192,17 +220,12 @@ public class MainActivity extends AppCompatActivity implements WebFragment.Fragm
             mIntent.setAction(IntentParams.StartRecCas);
             startService(mIntent);
 
-            Bundle mBundle = new Bundle();
-            mBundle.putInt(TypeOfDialog, ConfirmDialog);
-            this.dlg.setArguments(mBundle);
-            this.dlg = new DiaFragment();
-            this.dlg.show(getFragmentManager(), "dlg");
-
-            mIntent = new Intent(this, MainService.class); //вызов авторизации доделать
-            mIntent.setAction(IntentParams.StartRecCas);
-            startService(mIntent);
+            *//*mIntent = new Intent(this, MainService.class); //вызов авторизации доделать
+            mIntent.setAction(IntentParams.Auth);
+            startService(mIntent);*//*
+            return false;
         }
-    }
+    }*/
 
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override

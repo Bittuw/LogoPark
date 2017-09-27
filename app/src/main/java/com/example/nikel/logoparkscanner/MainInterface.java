@@ -24,6 +24,9 @@ public interface MainInterface {
     static final int ManualDialog = 1; //
     static final int ConfirmDialog = 2;
 
+    static final String isRead = "isReadInstruct";
+    static final String isAuth = "isAuthorized";
+
      static class IntentParams {
         static final int Authorizate = 1;
         static final String Auth = "Authorizate";
