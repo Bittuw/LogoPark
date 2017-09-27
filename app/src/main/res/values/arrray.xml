@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="mainActivity">
+        <item>@string/app_name</item>
+    </string-array>
+
+    <string-array name="menuItems">
+        <item>@string/action_settings</item>
+        <item>@string/action_manual</item>
+        <item>@string/action_about</item>
+    </string-array>
+
+    <string-array name="manualItems">
+        <item>@string/dialog_title</item>
+        <item>@string/manual_dialog_text</item>
+        <item>@string/ok</item>
+        <item>@string/exit</item>
+    </string-array>
+</resources>
