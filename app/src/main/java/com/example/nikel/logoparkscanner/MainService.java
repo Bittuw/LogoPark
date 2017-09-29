@@ -5,11 +5,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -25,15 +23,14 @@ import javax.net.ssl.HttpsURLConnection;
  * Created by nikel on 13.09.2017.
  */
 
-public class MainService extends Service implements MainInterface{
+public class MainService extends Service {
 
-    private SharedPreferences mPref;
     BroadcastReceiver mReceiver;
     private final String MESSAGE_TAG = "urovo.rcv.message";
 
-    private HandlerThread rThread, mThread;
-    private Handler rHanlder, mHandler;
-    private InternetThread GET;
+    private HandlerThread rThread, getThread, postThread;
+    private Handler rHanlder, getHandler, postHandler;
+    private InternetThread GET, POST;
     private String type, code;
 
     final String LOG_TAG = "MainService";
@@ -56,10 +53,17 @@ public class MainService extends Service implements MainInterface{
     public void onCreate() {
         super.onCreate();
         Log.d(LOG_TAG, "onCreate");
-        mThread = new HandlerThread("InternetThread");
-        mThread.start();
-        mHandler = new Handler(mThread.getLooper());
+
+        getThread = new HandlerThread(getThread.toString());
+        getThread.start();
+        getHandler = new Handler(getThread.getLooper());
+
+        postThread = new HandlerThread(postThread.toString());
+        postThread.start();
+        postHandler = new Handler(postThread.getLooper());
+
         GET = new InternetThread();
+        POST = new InternetThread();
     }
 
     @Override
@@ -69,15 +73,19 @@ public class MainService extends Service implements MainInterface{
         String action = intent.getAction();
 
         switch (action) {
-            case IntentParams.Auth:
+            case Constants.IntentParams.Auth:
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
-                getData(action, intent.getStringExtra("URL"));
+                getData(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
-            case IntentParams.RecD:
+            case Constants.IntentParams.RecD:
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
-                getData(action, intent.getStringExtra("URL"));
+                getData(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
-            case IntentParams.StartRecCas:
+            case Constants.IntentParams.SendData:
+                Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
+                sendData(action, intent.getStringExtra(Constants.IntentParams.URL));
+                break;
+            case Constants.IntentParams.StartRecCas:
                 if (rHanlder == null) {
                     rThread = new HandlerThread("ReceiveThread");
                     rThread.start();
@@ -102,11 +110,18 @@ public class MainService extends Service implements MainInterface{
 
     private void getData(String action, String path) {
         GET.setPath(path);
-        mHandler.post(GET);
+        GET.setAction(action);
+        getHandler.post(GET);
+    }
+
+    private void sendData(String action, String path) {
+        POST.setAction(action);
+        POST.setPath(path);
+        postHandler.post(POST);
     }
 
     private class InternetThread implements Runnable {
-        String path;
+        String path, action;
 
         public InternetThread() {
 
@@ -129,10 +144,23 @@ public class MainService extends Service implements MainInterface{
                     buf.append(line + "\n");
                 }
 
-                Intent mIntent = new Intent(ConfirmAuth);
-                mIntent.putExtra("Data", buf.toString());
-                LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(mIntent);
-                //return(buf.toString());
+                Intent mIntent;
+
+                switch (action) {
+                    case Constants.IntentParams.Auth:
+                        mIntent = new Intent(Constants.IntentParams.Auth);
+                        mIntent.putExtra(Constants.IntentParams.Data, buf.toString());
+                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(mIntent);
+                        break;
+                    case Constants.IntentParams.RecD:
+                        mIntent = new Intent(Constants.IntentParams.RecD);
+                        mIntent.putExtra(Constants.IntentParams.Data, buf.toString());
+                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(mIntent);
+                        break;
+                    default:
+                        Log.e(LOG_TAG, this.getClass().getName());
+                        break;
+                }
             }
             catch (IOException ex) {
                 Log.e(LOG_TAG, ex.getMessage());
@@ -145,6 +173,14 @@ public class MainService extends Service implements MainInterface{
 
         public String getPath() {
             return this.path;
+        }
+
+        public void setAction(String action) {
+            this.action = action;
+        }
+
+        public String getAction() {
+            return this.action;
         }
     }
 
@@ -169,18 +205,17 @@ public class MainService extends Service implements MainInterface{
             code = new String(barcode,0, barocodelen);
             type = BarcodeTypes.decodeType(temp).name();
 
-            Intent message = new Intent(context, MainActivity.class);
+            Intent message = new Intent(Constants.IntentParams.Auth);
             message.putExtra("type", type);
             message.putExtra("code", code);
-            message.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//          context.sendBroadcast(message);
-            context.startActivity(message);
+            //message.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(message);
+            //context.startActivity(message);
         }
 
         public MyReceiver() {
 
         }
     }
-
 }
 

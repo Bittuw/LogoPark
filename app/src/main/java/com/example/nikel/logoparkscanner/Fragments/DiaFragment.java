@@ -3,8 +3,6 @@ package com.example.nikel.logoparkscanner.Fragments;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.Fragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,16 +11,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.nikel.logoparkscanner.MainInterface;
+import com.example.nikel.logoparkscanner.Constants;
 import com.example.nikel.logoparkscanner.R;
 
 /**
  * Created by nikel on 19.09.2017.
  */
 
-public class DiaFragment extends DialogFragment implements View.OnClickListener, MainInterface {
+public class DiaFragment extends DialogFragment {
 
     private CheckBox mCheck;
     private TextView mTextView;
@@ -30,10 +27,19 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
     private String LOG_TAG = "DialogFragment";
     private int CurrentDialogType;
 
+    public View.OnClickListener positiveListener, negativeListener;
+
     @Override
     public void setArguments(Bundle args) {
+        CurrentDialogType = args.getInt(Constants.TypeOfDialog);
         super.setArguments(args);
     }
+
+    public void setOnClickListener(View.OnClickListener positiveListener, View.OnClickListener negativeListener) {
+        this.negativeListener = negativeListener;
+        this.positiveListener = positiveListener;
+    }
+
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -48,9 +54,8 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        CurrentDialogType = getArguments().getInt(TypeOfDialog);
         switch (CurrentDialogType) {
-            case ManualDialog:
+            case Constants.ManualDialog:
                 View md = inflater.inflate(R.layout.manual_dialog, null);
 
                 mTextView = md.findViewById(R.id.Text);
@@ -67,11 +72,11 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
 
                 setCancelable(false);
 
-                mListner = (NoticeListener) getParentFragment();
+                /*mListner = (NoticeListener) getParentFragment();*/
 
                 break;
 
-            case ConfirmDialog:
+            case Constants.ConfirmDialog:
 
                 View cd = inflater.inflate(R.layout.auth_dialog, null);
 
@@ -85,7 +90,7 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
 
                 setCancelable(false);
 
-                mListner = (NoticeListener) getParentFragment();
+                /*mListner = (NoticeListener) getParentFragment();*/
 
                 break;
             default:
@@ -96,11 +101,6 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
     }
 
 
-
-    public void onClick(View v) {
-
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -109,45 +109,16 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
         Button positive = dialog.getButton(Dialog.BUTTON_POSITIVE);
         Button negative = dialog.getButton(Dialog.BUTTON_NEGATIVE);
 
-        positive.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                switch (CurrentDialogType) {
-                    case ManualDialog:
-                        if(mCheck.isChecked()) {
-                            Toast.makeText(getActivity(), "Мануал принят", Toast.LENGTH_LONG).show();
-                            mListner.onDialogPositiveClick(CurrentDialogType);
-                            dismiss();
-                        }
-                        Toast.makeText(getActivity(), "Необходимо подтвердить прочтение интрукции", Toast.LENGTH_LONG).show();
-                        break;
-                    case ConfirmDialog:
-                        break;
-                    default:
-                        Log.e(LOG_TAG, "onStart 1");
-                }
+        positive.setOnClickListener(this.positiveListener);
+        negative.setOnClickListener(this.negativeListener);
+    }
 
-            }
-        });
+    public boolean getCheckBoolean() {
+        return mCheck.isChecked();
+    }
 
-        negative.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switch (CurrentDialogType) {
-                    case ManualDialog:
-                        mListner.onDialogNegativeClick(CurrentDialogType);
-                        dismiss();
-                        break;
-                    case ConfirmDialog:
-                        mListner.onDialogNegativeClick(CurrentDialogType);
-                        dismiss();
-                        break;
-                    default:
-                        Log.e(LOG_TAG, "onStart 2");
-                        break;
-                }
-
-            }
-        });
+    public void CloseDialog() {
+        this.dismiss();
     }
 
     @Override
@@ -155,8 +126,8 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
         super.onDismiss(dialog);
     }
 
-    public interface NoticeListener { // отправка типа диалога
-        public void onDialogPositiveClick(int TypeOfDialog);
-        public void onDialogNegativeClick(int TypeOfDialog);
+    public interface NoticeListener {
+        public void onDialogPositiveClick();
+        public void onDialogNegativeClick();
     }
 }

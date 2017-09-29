@@ -1,34 +1,36 @@
 package com.example.nikel.logoparkscanner;
 
-import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.Toast;
 
 import com.example.nikel.logoparkscanner.Fragments.AuthFragment;
 import com.example.nikel.logoparkscanner.Fragments.DiaFragment;
+import com.example.nikel.logoparkscanner.Fragments.MainFragment;
 import com.example.nikel.logoparkscanner.Fragments.WebFragment;
 
-public class MainActivity extends AppCompatActivity implements AuthFragment.NoticeListener, MainInterface{ // TODO реализация логики в фрагментах
+import java.util.Set;
+
+public class MainActivity extends AppCompatActivity implements AuthFragment.NoticeListener{ // TODO реализация логики в фрагментах
 
 
     private WebFragment webFragment; // TODO Фрагмен веб формы
 
     private AuthFragment authFragment; // TODO авторизация и мануал
-
+    private MainFragment mainFragment;
+    private Fragment mCurrentFragment;
 
     private FragmentTransaction manager;
 
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
 
     private boolean isReadInstruct, isAuthorized;
 
+    private DiaFragment manual_dlg;
 
     private String url = "https://lgprk.ru/api/v1/scan";
     private String LOG_TAG = "MainActivity";
@@ -45,19 +48,18 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         getAppInfo();
+        checkReadManual();
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        MakeFragment();
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart(){ // Запихнуть проверка на isRead и isAuth
         super.onStart();
-        findAllView();
     }
 
     @Override
@@ -129,45 +131,62 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         this.finish();
     }*/
 
-    @Override
-    public void onAuthPositiveClick(int TypeOfDialog) { 
-        switch (TypeOfDialog) {
-            case ManualDialog:
-                SharedPreferences.Editor editor =mPref.edit();
-                editor.putString(IS_FIRST_LAUNCH, YES);
-                editor.apply();
-                break;
-            case ConfirmDialog:
-                break;
-            default:
-                break;
+
+    public View.OnClickListener positiveListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if(manual_dlg.getCheckBoolean()) {
+                Toast.makeText(getApplicationContext(), "Мануал принят", Toast.LENGTH_LONG).show();
+                manual_dlg.CloseDialog();
+
+                isReadInstruct = true;
+
+                setAppInfo();
+                makeAuthFragment();
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "Необходимо подтвердить прочтение интрукции", Toast.LENGTH_LONG).show();
+            }
         }
+    };
+
+    public View.OnClickListener negativeListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            manual_dlg.CloseDialog();
+            finish();
+        }
+    };
+
+    @Override
+    public void Authorized() {
+        setAppInfo();
+        makeMainFragment();
     }
 
     @Override
-    public void onAuthNegativeClick(int TypeOfDialog) {
-        switch (TypeOfDialog) {
-            case ManualDialog:
-                break;
-            case ConfirmDialog:
-                break;
-            default:
-                break;
-        }
+    public void NoAuthorized() {
+        finish();
     }
 
     private void getAppInfo() { // TODO инициализация параметров из файла
 
-        this.mPref = getSharedPreferences(MainFileInfo, MODE_PRIVATE);
+        this.mPref = getSharedPreferences(Constants.MainFileInfo, MODE_PRIVATE);
 
-        if (this.mPref.getString(IS_FIRST_LAUNCH, NO) == YES) {
+        if(Constants.DebugMode) {
+            SharedPreferences.Editor mEditor = mPref.edit();
+            mEditor.clear();
+            mEditor.apply();
+        }
+
+        if (this.mPref.getString(Constants.IS_FIRST_LAUNCH, Constants.NO).equals(Constants.YES)) {
             this.isReadInstruct = true;
         }
         else {
             this.isReadInstruct = false;
         }
 
-        if (this.mPref.getString(IS_AUTHARIZED, NO) == YES) {
+        if (this.mPref.getString(Constants.IS_AUTHARIZED, Constants.NO) == Constants.YES) {
             this.isAuthorized = true; // Ключи и тд.
         }
         else {
@@ -176,34 +195,37 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
 
     }
 
-    private void MakeFragment() {
-        if (!isReadInstruct || !isAuthorized) {
-            Bundle mBundle = new Bundle();
-            mBundle.putBoolean(isRead, isReadInstruct);
-            mBundle.putBoolean(isAuth, isAuthorized);
-            authFragment = new AuthFragment(); // Возможен перенос в функцию для автовхода
-            authFragment.setArguments(mBundle);
-            manager = getFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, authFragment);
-            manager.commit();
+    private void setAppInfo() {
+        SharedPreferences.Editor editor = mPref.edit();
+        if (isReadInstruct) {
+            editor.putString(Constants.IS_FIRST_LAUNCH, Constants.YES);
         }
-        else {
-            /*
-            manager = getFragmentManager().beginTransaction()
-                    .replace(R.id.contentFragment, )*/ // Создание основного фрагмента
+        if (isAuthorized) {
+            editor.putString(Constants.IS_AUTHARIZED, Constants.YES);
         }
+        editor.apply();
     }
 
-    private void findAllView() { // TODO поиск всех отображаемых объектов
-        /*this.Type = (TextView)findViewById(R.id.Type);
-        this.Code = (TextView)findViewById(R.id.Code);
-        this.Progressbar = (ProgressBar)findViewById(R.id.progressBar);
-
-
-        this.fragment = (WebFragment) getFragmentManager().findFragmentById(R.id.contentFragment); // Выбор фрагмента нужно настроить
-        this.manager = getFragmentManager().beginTransaction();
-        this.manager.hide(fragment).commit();*/
+    private void makeAuthFragment() {
+        Bundle mBundle = new Bundle();
+        mBundle.putBoolean(Constants.isRead, isReadInstruct);
+        mBundle.putBoolean(Constants.isAuth, isAuthorized);
+        authFragment = new AuthFragment(); // Возможен перенос в функцию для автовхода
+        authFragment.setArguments(mBundle);
+        manager = getFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, authFragment, authFragment.getClass().getName());
+        manager.commit();
+        mCurrentFragment = authFragment;
     }
+
+    private void makeMainFragment() {
+        mainFragment = new MainFragment();
+        manager = getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
+        manager.commit();
+        mCurrentFragment = mainFragment;
+    }
+
 
    /* private boolean checkIsAuthorized() {
         if (true) { // this.isAuthorized
@@ -227,10 +249,19 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         }
     }*/
 
-    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            isAuthorized = true;
+    private void checkReadManual() {
+        if (!isReadInstruct && !isAuthorized) {
+            makeManualDialog();
         }
-    };
+    }
+
+    private void makeManualDialog() {
+        manual_dlg = new DiaFragment();
+        Bundle mBundle = new Bundle();
+        mBundle.putInt(Constants.TypeOfDialog, Constants.ManualDialog);
+        manual_dlg.setArguments(mBundle);
+        manual_dlg.setOnClickListener(positiveListener, negativeListener);
+        manual_dlg.show(getFragmentManager(), manual_dlg.toString());
+    }
+
 }
