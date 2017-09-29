@@ -29,7 +29,11 @@ public class DiaFragment extends DialogFragment implements View.OnClickListener,
     private NoticeListener mListner;
     private String LOG_TAG = "DialogFragment";
     private int CurrentDialogType;
-    private Fragment parentFragment;
+
+    @Override
+    public void setArguments(Bundle args) {
+        super.setArguments(args);
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

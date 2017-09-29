@@ -22,7 +22,7 @@ import com.example.nikel.logoparkscanner.Fragments.AuthFragment;
 import com.example.nikel.logoparkscanner.Fragments.DiaFragment;
 import com.example.nikel.logoparkscanner.Fragments.WebFragment;
 
-public class MainActivity extends AppCompatActivity implements AuthFragment.NoticeListener, MainInterface{
+public class MainActivity extends AppCompatActivity implements AuthFragment.NoticeListener, MainInterface{ // TODO реализация логики в фрагментах
 
 
     private WebFragment webFragment; // TODO Фрагмен веб формы
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     }*/
 
     @Override
-    public void onAuthPositiveClick(int TypeOfDialog) {
+    public void onAuthPositiveClick(int TypeOfDialog) { 
         switch (TypeOfDialog) {
             case ManualDialog:
                 SharedPreferences.Editor editor =mPref.edit();
