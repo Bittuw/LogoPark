@@ -4,13 +4,12 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/Nick"
+    <TextView
+        android:id="@+id/TextID"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Введите никнейм"
-        android:inputType="textPersonName" />
+        android:text="@string/text_for_auth"
+        android:textAlignment="center"/>
 
     <EditText
         android:id="@+id/Password"
@@ -28,11 +27,4 @@
         android:hint="Повоторите пароль"
         android:inputType="textPassword" />
 
-    <EditText
-        android:id="@+id/Custom_pass"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Одноразовый пароль"
-        android:inputType="textPersonName" />
 </LinearLayout>

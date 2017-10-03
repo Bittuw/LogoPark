@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.nikel.logoparkscanner.Constants;
@@ -26,6 +27,8 @@ public class DiaFragment extends DialogFragment {
     private NoticeListener mListner;
     private String LOG_TAG = "DialogFragment";
     private int CurrentDialogType;
+    private EditText Password, Password_rep;
+    private View mCurrentView;
 
     public View.OnClickListener positiveListener, negativeListener;
 
@@ -58,6 +61,7 @@ public class DiaFragment extends DialogFragment {
             case Constants.ManualDialog:
                 View md = inflater.inflate(R.layout.manual_dialog, null);
 
+                mCurrentView = md;
                 mTextView = md.findViewById(R.id.Text);
                 mCheck = md.findViewById(R.id.CheckManual);
                 mTextView.setText(R.string.manual_dialog_text);
@@ -79,6 +83,9 @@ public class DiaFragment extends DialogFragment {
             case Constants.ConfirmDialog:
 
                 View cd = inflater.inflate(R.layout.auth_dialog, null);
+                Password = cd.findViewById(R.id.Password);
+                Password_rep = cd.findViewById(R.id.Password_rep);
+                mCurrentView = cd;
 
                 builder
                         .setView(cd)
@@ -121,13 +128,27 @@ public class DiaFragment extends DialogFragment {
         this.dismiss();
     }
 
+    public Bundle getPassword() {
+        Bundle mBundle = new Bundle();
+        if(
+                !(Password.getText().toString().equals("") || Password_rep.getText().toString().equals("")) &&
+                (Password.getText().toString().equals(Password_rep.getText().toString()))
+            ) {
+            mBundle.putString(Constants.Password, Password.getText().toString());
+            mBundle.putString(Constants.Password_rep, Password_rep.getText().toString());
+            return mBundle;
+        }
+        else {
+            return mBundle;
+        }
+    }
+
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
     }
 
     public interface NoticeListener {
-        public void onDialogPositiveClick();
-        public void onDialogNegativeClick();
+        public void returnUserPassword(Bundle mBundle);
     }
 }

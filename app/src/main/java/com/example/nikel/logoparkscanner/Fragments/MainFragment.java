@@ -1,5 +1,6 @@
 package com.example.nikel.logoparkscanner.Fragments;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,12 +10,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.nikel.logoparkscanner.Constants;
 import com.example.nikel.logoparkscanner.JSONParser.JSONParser;
@@ -26,12 +25,16 @@ import com.example.nikel.logoparkscanner.R;
 
 public class MainFragment extends Fragment {
 
+    private TextView type, code;
     private JSONParser parser;
+    private Activity mActivity;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.IntentParams.RecD));
+        mActivity = getActivity();
+        LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcastReceiverQR, new IntentFilter(Constants.IntentParams.RecData));
+        LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcastReceiverData, new IntentFilter(Constants.IntentParams.QR));
     }
 
 
@@ -39,6 +42,8 @@ public class MainFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
+        type = v.findViewById(R.id.TypeID);
+        code = v.findViewById(R.id.CodeID);
         return v;
     }
 
@@ -59,7 +64,14 @@ public class MainFragment extends Fragment {
         }
     }
 
-    BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+    BroadcastReceiver mBroadcastReceiverQR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+        }
+    };
+
+    BroadcastReceiver mBroadcastReceiverData = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -68,7 +80,8 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).unregisterReceiver(mBroadcastReceiver);
+        LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(mBroadcastReceiverQR);
+        LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(mBroadcastReceiverQR);
         super.onDestroy();
     }
 }

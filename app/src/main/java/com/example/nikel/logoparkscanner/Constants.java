@@ -14,29 +14,25 @@ public class Constants {
     public static final String YES = "Y";
     public static final String NO = "N";
 
-
-    public static final String ConfirmAuth = "ConfirmAuth"; // TODO строка интента для подтверждения авторизации
-    public  static final String ConAuth = "ConAuth";
-
-    public static final String GetData = "Map"; // TODO строка интента для получения массива распарсенного JSON
-
     public static final String TypeOfDialog = "TypeOfDialog"; // TODO  строка типа диалога
     public static final int ManualDialog = 1; //
     public static final int ConfirmDialog = 2;
 
     public static final String isRead = "isReadInstruct";
     public static final String isAuth = "isAuthorized";
+    public static final String Password = "Password";
+    public static final String Password_rep ="Password_rep";
 
     public static class IntentParams {
-        public static final int Authorizate = 1;
         public static final String Auth = "Authorizate";
-        public static final int ReceiveData = 2;
-        public static final String RecD = "ReceiveData";
-        public static final int StartReceiveCasts = 3;
+        public static final String RecData = "ReceiveData";
         public static final String StartRecCas = "StartReceiveCasts";
+        public static final String StopService = "StopService";
+
         public static final String URL = "URL";
         public static final String SendData = "SendData";
-        public static final String Data = "Data";
+        public static final String GetData = "GetData";
+        public static final String QR = "qr";
     }
 
 }

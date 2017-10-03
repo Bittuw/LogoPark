@@ -25,7 +25,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class MainService extends Service {
 
-    BroadcastReceiver mReceiver;
+    MyReceiver mReceiver;
     private final String MESSAGE_TAG = "urovo.rcv.message";
 
     private HandlerThread rThread, getThread, postThread;
@@ -33,6 +33,7 @@ public class MainService extends Service {
     private InternetThread GET, POST;
     private String type, code;
 
+    private String url = "https://lgprk.ru/visit/?";
     final String LOG_TAG = "MainService";
 
     private static enum BarcodeTypes {
@@ -50,15 +51,19 @@ public class MainService extends Service {
         }
     }
 
+    public void setArguments() {
+
+    }
+
     public void onCreate() {
         super.onCreate();
         Log.d(LOG_TAG, "onCreate");
 
-        getThread = new HandlerThread(getThread.toString());
+        getThread = new HandlerThread("getThread");
         getThread.start();
         getHandler = new Handler(getThread.getLooper());
 
-        postThread = new HandlerThread(postThread.toString());
+        postThread = new HandlerThread("postThread");
         postThread.start();
         postHandler = new Handler(postThread.getLooper());
 
@@ -75,9 +80,9 @@ public class MainService extends Service {
         switch (action) {
             case Constants.IntentParams.Auth:
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
-                getData(action, intent.getStringExtra(Constants.IntentParams.URL));
+                getData(action, url + intent.getStringExtra(Constants.IntentParams.URL));
                 break;
-            case Constants.IntentParams.RecD:
+            case Constants.IntentParams.RecData:
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
                 getData(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
@@ -90,13 +95,18 @@ public class MainService extends Service {
                     rThread = new HandlerThread("ReceiveThread");
                     rThread.start();
                     rHanlder = new Handler(rThread.getLooper());
+                    mReceiver = new MyReceiver();
                     registerReceiver(mReceiver, new IntentFilter(MESSAGE_TAG), null, rHanlder);
                 }
                 else {
                     this.stopSelf(startId);
                 }
                 break;
+            case Constants.IntentParams.StopService:
+                this.stopSelf();
+                break;
             default:
+                Log.e(LOG_TAG, "onStartCommand " + intent.getAction());
                 break;
         }
         return START_REDELIVER_INTENT;
@@ -149,12 +159,12 @@ public class MainService extends Service {
                 switch (action) {
                     case Constants.IntentParams.Auth:
                         mIntent = new Intent(Constants.IntentParams.Auth);
-                        mIntent.putExtra(Constants.IntentParams.Data, buf.toString());
+                        mIntent.putExtra(Constants.IntentParams.GetData, buf.toString());
                         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(mIntent);
                         break;
-                    case Constants.IntentParams.RecD:
-                        mIntent = new Intent(Constants.IntentParams.RecD);
-                        mIntent.putExtra(Constants.IntentParams.Data, buf.toString());
+                    case Constants.IntentParams.RecData:
+                        mIntent = new Intent(Constants.IntentParams.RecData);
+                        mIntent.putExtra(Constants.IntentParams.GetData, buf.toString());
                         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(mIntent);
                         break;
                     default:
@@ -205,12 +215,13 @@ public class MainService extends Service {
             code = new String(barcode,0, barocodelen);
             type = BarcodeTypes.decodeType(temp).name();
 
-            Intent message = new Intent(Constants.IntentParams.Auth);
-            message.putExtra("type", type);
-            message.putExtra("code", code);
-            //message.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            LocalBroadcastManager.getInstance(context).sendBroadcast(message);
-            //context.startActivity(message);
+            Intent mIntent = new Intent(MainService.this, MainActivity.class);
+            mIntent.setAction(Constants.IntentParams.QR);
+            mIntent.putExtra("type", type);
+            mIntent.putExtra("code", code);
+            mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            //LocalBroadcastManager.getInstance(context).sendBroadcast(message);
+            context.startActivity(mIntent);
         }
 
         public MyReceiver() {
