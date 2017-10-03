@@ -135,7 +135,6 @@ public class DiaFragment extends DialogFragment {
                 (Password.getText().toString().equals(Password_rep.getText().toString()))
             ) {
             mBundle.putString(Constants.Password, Password.getText().toString());
-            mBundle.putString(Constants.Password_rep, Password_rep.getText().toString());
             return mBundle;
         }
         else {

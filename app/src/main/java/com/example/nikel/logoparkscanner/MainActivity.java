@@ -59,14 +59,8 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         Log.d(LOG_TAG, "onStart " + getIntent().getAction());
         if (!isRestarting)
             switch (getIntent().getAction()) {
-                /*case Constants.IntentParams.QR:
-                    Bundle mBundle = new Bundle();
-                    mBundle.putString("type", getIntent().getStringExtra("type"));
-                    mBundle.putString("code", getIntent().getStringExtra("code"));
-                    makeMainFragment(mBundle);
-                    break;*/
                 case Intent.ACTION_MAIN:
-                    checkReadManual();
+                    checkReadAndAuth();
                     break;
                 default:
                     Log.e(LOG_TAG, "onStart" + getIntent().getAction());
@@ -165,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
                 isReadInstruct = true;
 
                 setAppInfo(new Bundle());
-                makeAuthFragment();
+                checkReadAndAuth();
             }
             else {
                 Toast.makeText(getApplicationContext(), "Необходимо подтвердить прочтение интрукции", Toast.LENGTH_LONG).show();
@@ -183,11 +177,9 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
 
     @Override
     public void Authorized(Bundle mBundle) {
+        isAuthorized = true;
         setAppInfo(mBundle);
-        /*Intent mIntent = new Intent(this, MainService.class); //вызов авторизации доделать
-        mIntent.setAction(Constants.IntentParams.StartRecCas);
-        startService(mIntent);*/
-        //makeMainFragment();
+        checkReadAndAuth();
     }
 
     @Override
@@ -223,11 +215,13 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
             this.isReadInstruct = false;
         }
 
-        if (this.mPref.getString(Constants.IS_AUTHARIZED, Constants.NO) == Constants.YES) {
-            this.isAuthorized = true; // Ключи и тд.
+        if(mPref.contains(Constants.User) && mPref.contains(Constants.Password)) {
+            user = mPref.getString(Constants.User, Constants.NO);
+            password = mPref.getString(Constants.Password, Constants.NO);
+            isAuthorized = true;
         }
         else {
-            this.isAuthorized = false;
+            isAuthorized = false;
         }
 
     }
@@ -237,14 +231,10 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         if (isReadInstruct) {
             editor.putString(Constants.IS_FIRST_LAUNCH, Constants.YES);
         }
-        if (isAuthorized) {
-            editor.putString(Constants.IS_AUTHARIZED, Constants.YES);
-        }
-        if (mBundle.containsKey(Constants.Password)) {
+        if (mBundle.containsKey(Constants.Password) && mBundle.containsKey(Constants.User)) {
             editor.putString(Constants.Password, mBundle.getString(Constants.Password));
-        }
-        if(mBundle.containsKey(Constants.Password_rep)) {
-            editor.putString(Constants.Password, mBundle.getString(Constants.Password_rep));
+            editor.putString(Constants.User, mBundle.getString(Constants.User));
+            editor.putString(Constants.IS_AUTHARIZED, Constants.YES);
         }
         editor.apply();
     }
@@ -286,31 +276,15 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         mCurrentFragment = mainFragment;
     }
 
-   /* private boolean checkIsAuthorized() {
-        if (true) { // this.isAuthorized
-            Intent mIntent = new Intent(this, MainService.class);
-            mIntent.setAction(IntentParams.StartRecCas);
-            startService(mIntent);
-            return true;
-        }
-        else {
-
-            LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, new IntentFilter(ConfirmAuth));
-
-            Intent mIntent = new Intent(this, MainService.class);
-            mIntent.setAction(IntentParams.StartRecCas);
-            startService(mIntent);
-
-            *//*mIntent = new Intent(this, MainService.class); //вызов авторизации доделать
-            mIntent.setAction(IntentParams.Auth);
-            startService(mIntent);*//*
-            return false;
-        }
-    }*/
-
-    private void checkReadManual() {
+    private void checkReadAndAuth() {
         if (!isReadInstruct && !isAuthorized) {
             makeManualDialog();
+        }
+        if(isReadInstruct && !isAuthorized) {
+            makeAuthFragment();
+        }
+        if (isReadInstruct && isAuthorized) {
+            makeMainFragment();
         }
     }
 

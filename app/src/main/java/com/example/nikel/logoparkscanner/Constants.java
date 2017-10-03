@@ -21,7 +21,7 @@ public class Constants {
     public static final String isRead = "isReadInstruct";
     public static final String isAuth = "isAuthorized";
     public static final String Password = "Password";
-    public static final String Password_rep ="Password_rep";
+    public static final String User ="User";
 
     public static class IntentParams {
         public static final String Auth = "Authorizate";

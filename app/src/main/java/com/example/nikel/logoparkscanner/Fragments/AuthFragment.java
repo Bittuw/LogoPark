@@ -101,6 +101,7 @@ public class AuthFragment extends Fragment{
                 Bundle mBundle = confirm_dlg.getPassword();
 
                 if(!mBundle.isEmpty()) {
+                    mBundle.putString(Constants.User, code);
                     confirm_dlg.CloseDialog();
                     mListener.Authorized(mBundle);
                 }

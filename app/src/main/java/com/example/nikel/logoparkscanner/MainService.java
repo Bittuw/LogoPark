@@ -11,10 +11,14 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ConnectException;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -174,6 +178,9 @@ public class MainService extends Service {
             }
             catch (IOException ex) {
                 Log.e(LOG_TAG, ex.getMessage());
+                Toast mToast = Toast.makeText(getApplicationContext(), "Проверте интернет соединение или отправте отчет о ошибках через меню", Toast.LENGTH_LONG);
+                mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                mToast.show();
             }
         }
 
