@@ -7,7 +7,7 @@ package com.example.nikel.logoparkscanner;
 
 public class Constants {
 
-    public static final boolean DebugMode = true;
+    public static final boolean DebugMode = false;
     public static final String MainFileInfo = "MainFileInfo"; // TODO файл хранения параметров приложения
     public static final String IS_FIRST_LAUNCH = "IsFirstLaunch"; // TODO название поля информации о первом запуске
     public static final String IS_AUTHARIZED = "IsAutharized"; // TODO название поля  информации о состоянии авторизации
@@ -22,6 +22,9 @@ public class Constants {
     public static final String isAuth = "isAuthorized";
     public static final String Password = "Password";
     public static final String User ="User";
+
+    public static final String Type = "Type";
+    public static final String Code = "Code";
 
     public static class IntentParams {
         public static final String Auth = "Authorizate";

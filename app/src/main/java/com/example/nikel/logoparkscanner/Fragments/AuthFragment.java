@@ -34,14 +34,10 @@ public class AuthFragment extends Fragment{
     private TextView TEST;
     private NoticeListener mListener;
     private DiaFragment confirm_dlg;
-    private String User, Password;
-
-    private boolean isReadInstruct, isAuthorized;
 
     @Override
     public void setArguments(Bundle args) {
-        isReadInstruct = args.getBoolean(Constants.isRead);
-        isAuthorized = args.getBoolean(Constants.isAuth);
+
         type = args.getString("type");
         super.setArguments(args);
     }

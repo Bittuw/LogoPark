@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,11 +32,12 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         mActivity = getActivity();
-        LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcastReceiverQR, new IntentFilter(Constants.IntentParams.RecData));
-        LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcastReceiverData, new IntentFilter(Constants.IntentParams.QR));
+        LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcastReceiverQR, new IntentFilter(Constants.IntentParams.QR));
+        LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcastReceiverData, new IntentFilter(Constants.IntentParams.RecData));
+        super.onCreate(savedInstanceState);
     }
+
 
 
     @Nullable
@@ -45,6 +47,12 @@ public class MainFragment extends Fragment {
         type = v.findViewById(R.id.TypeID);
         code = v.findViewById(R.id.CodeID);
         return v;
+    }
+
+    @Override
+    public void onStart() {
+
+        super.onStart();
     }
 
     private class JSONAsync extends AsyncTask<String, Integer, String> {
@@ -67,7 +75,7 @@ public class MainFragment extends Fragment {
     BroadcastReceiver mBroadcastReceiverQR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
+            Log.d("1", "@");
         }
     };
 

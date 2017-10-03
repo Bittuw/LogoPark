@@ -284,7 +284,13 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
             makeAuthFragment();
         }
         if (isReadInstruct && isAuthorized) {
-            makeMainFragment();
+            Bundle mBundle = new Bundle();
+            mBundle.putString(Constants.User, user);
+            mBundle.putString(Constants.Type, getIntent().getStringExtra("type"));
+            mBundle.putString(Constants.Code, getIntent().getStringExtra("code"));
+            makeMainFragment(mBundle);
+
+            startService((new Intent(this, MainService.class).setAction(Constants.IntentParams.StartRecCas)));
         }
     }
 
