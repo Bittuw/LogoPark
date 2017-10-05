@@ -29,6 +29,7 @@ public class MainFragment extends Fragment {
     private TextView type, code;
     private JSONParser parser;
     private Activity mActivity;
+    private static final String LOG_TAG = "MainFragment";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,7 +76,9 @@ public class MainFragment extends Fragment {
     BroadcastReceiver mBroadcastReceiverQR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("1", "@");
+            Log.d(LOG_TAG, intent.getAction());
+            type.setText(intent.getStringExtra("type"));
+            code.setText(intent.getStringExtra("code"));
         }
     };
 

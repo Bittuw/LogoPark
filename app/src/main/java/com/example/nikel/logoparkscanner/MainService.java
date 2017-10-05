@@ -103,7 +103,7 @@ public class MainService extends Service {
                     registerReceiver(mReceiver, new IntentFilter(MESSAGE_TAG), null, rHanlder);
                 }
                 else {
-                    this.stopSelf(startId);
+                    Log.e(LOG_TAG, action + ": Service is already working");
                 }
                 break;
             case Constants.IntentParams.StopService:

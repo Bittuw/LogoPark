@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
 
     private String user, password;
     private String url = "https://lgprk.ru/api/v1/scan";
-    private String LOG_TAG = "MainActivity";
+    private static final String LOG_TAG = "MainActivity";
 
 
     @Override

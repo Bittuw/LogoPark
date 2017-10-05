@@ -71,6 +71,7 @@ public class AuthFragment extends Fragment{
     public View.OnClickListener Listener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            Auth.setClickable(false);
             confirm_dlg = new DiaFragment();
             Bundle mBundle = new Bundle();
             mBundle.putInt(Constants.TypeOfDialog, Constants.ConfirmDialog);
