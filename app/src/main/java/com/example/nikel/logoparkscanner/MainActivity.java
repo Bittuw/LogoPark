@@ -2,13 +2,17 @@ package com.example.nikel.logoparkscanner;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +30,6 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
 
     private AuthFragment authFragment; // TODO авторизация и мануал
     private MainFragment mainFragment;
-    private Fragment mCurrentFragment;
 
     private FragmentTransaction manager;
 
@@ -37,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     private DiaFragment manual_dlg;
 
     private String user, password;
-    private String url = "https://lgprk.ru/api/v1/scan";
     private static final String LOG_TAG = "MainActivity";
 
 
@@ -62,8 +64,11 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
                 case Intent.ACTION_MAIN:
                     checkReadAndAuth();
                     break;
+                case Constants.IntentParams.QR:
+                    checkReadAndAuth();
+                    break;
                 default:
-                    Log.e(LOG_TAG, "onStart" + getIntent().getAction());
+                    Log.e(LOG_TAG, "onStart " + getIntent().getAction());
                     break;
             }
 
@@ -153,7 +158,9 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         @Override
         public void onClick(View view) {
             if(manual_dlg.getCheckBoolean()) {
-                Toast.makeText(getApplicationContext(), "Мануал принят", Toast.LENGTH_LONG).show();
+                Toast mToast = Toast.makeText(getApplicationContext(), "Инструкция прочтена", Toast.LENGTH_SHORT);
+                mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                mToast.show();
                 manual_dlg.CloseDialog();
 
                 isReadInstruct = true;
@@ -162,7 +169,9 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
                 checkReadAndAuth();
             }
             else {
-                Toast.makeText(getApplicationContext(), "Необходимо подтвердить прочтение интрукции", Toast.LENGTH_LONG).show();
+                Toast mToast = Toast.makeText(getApplicationContext(), "Необходимо подтвердить прочтение интрукции", Toast.LENGTH_SHORT);
+                mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                mToast.show();
             }
         }
     };
@@ -184,12 +193,14 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
 
     @Override
     public void NoAuthorized() {
-        stopService((new Intent()).setAction(Constants.IntentParams.StopService));
+        setIntent(new Intent(Intent.ACTION_MAIN));
+        StopServiceTask();
         finish();
     }
 
     @Override
     public void StartServiceTask(Intent mIntent) {
+        Log.d(LOG_TAG, "startService with: " + mIntent.getAction());
         startService(mIntent);
     }
 
@@ -264,7 +275,6 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         manager = getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
         manager.commit();
-        mCurrentFragment = mainFragment;
     }
 
     private void makeMainFragment(Bundle mBundle) {
@@ -273,7 +283,6 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         manager = getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
         manager.commit();
-        mCurrentFragment = mainFragment;
     }
 
     private void checkReadAndAuth() {
@@ -290,7 +299,11 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
             mBundle.putString(Constants.Code, getIntent().getStringExtra("code"));
             makeMainFragment(mBundle);
 
-            startService((new Intent(this, MainService.class).setAction(Constants.IntentParams.StartRecCas)));
+            Intent mIntent = new Intent(this, MainService.class);
+            mIntent.setAction(Constants.IntentParams.StartRecCas);
+            mIntent.putExtra(Constants.IntentParams.foregroundService, true);
+
+            StartServiceTask(mIntent);
         }
     }
 
@@ -301,6 +314,17 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         manual_dlg.setArguments(mBundle);
         manual_dlg.setOnClickListener(positiveListener, negativeListener);
         manual_dlg.show(getFragmentManager(), manual_dlg.toString());
+    }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting())
+        {
+            return true;
+        }
+        return false;
     }
 
 }

@@ -22,6 +22,7 @@ import com.example.nikel.logoparkscanner.Constants;
 import com.example.nikel.logoparkscanner.MainService;
 import com.example.nikel.logoparkscanner.R;
 
+import java.util.regex.*;
 /**
  * Created by nikel on 27.09.2017.
  */
@@ -68,16 +69,24 @@ public class AuthFragment extends Fragment{
         return v;
     }
 
+    private static boolean validateCode(final String code) {
+        return code.startsWith("user:");
+    }
+
+    private void creatDialog() {
+        Auth.setClickable(false);
+        confirm_dlg = new DiaFragment();
+        Bundle mBundle = new Bundle();
+        mBundle.putInt(Constants.TypeOfDialog, Constants.ConfirmDialog);
+        confirm_dlg.setArguments(mBundle);
+        confirm_dlg.setOnClickListener(positiveListener, negativeListener);
+        confirm_dlg.show(getFragmentManager(), confirm_dlg.toString());
+    }
+
     public View.OnClickListener Listener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Auth.setClickable(false);
-            confirm_dlg = new DiaFragment();
-            Bundle mBundle = new Bundle();
-            mBundle.putInt(Constants.TypeOfDialog, Constants.ConfirmDialog);
-            confirm_dlg.setArguments(mBundle);
-            confirm_dlg.setOnClickListener(positiveListener, negativeListener);
-            confirm_dlg.show(getFragmentManager(), confirm_dlg.toString());
+            creatDialog();
 
             Intent mIntent = new Intent(mActivity, MainService.class);
             mIntent.setAction(Constants.IntentParams.StartRecCas);
@@ -130,18 +139,29 @@ public class AuthFragment extends Fragment{
     private BroadcastReceiver mBroadcasrReceiverQR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (confirm_dlg == null) {
+                creatDialog();
+            }
+
             Toast mToast = Toast.makeText(mActivity, "Штрих-код просканирован", Toast.LENGTH_SHORT);
             mToast.setGravity(Gravity.BOTTOM, 0, 0);
             mToast.show();
 
-            type = intent.getStringExtra("type");
-            code = (intent.getStringExtra("code")).replace(":", "=");
+            if (validateCode(intent.getStringExtra("code"))) {
+                type = intent.getStringExtra("type");
+                code = (intent.getStringExtra("code")).replace(":", "=");
+            }
+            else {
+                mToast = Toast.makeText(mActivity, "Не верный штрих-код", Toast.LENGTH_SHORT);
+                mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                mToast.show();
+            }
 
             /* Запросы на загрузку профиля*/
-            Intent mIntent = new Intent(mActivity, MainService.class);
+           /* Intent mIntent = new Intent(mActivity, MainService.class);
             mIntent.setAction(Constants.IntentParams.Auth);
             mIntent.putExtra(Constants.IntentParams.URL, code);
-            mListener.StartServiceTask(mIntent);
+            mListener.StartServiceTask(mIntent);*/
         }
     };
 

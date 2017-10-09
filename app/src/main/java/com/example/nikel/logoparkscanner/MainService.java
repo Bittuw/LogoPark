@@ -1,10 +1,13 @@
 package com.example.nikel.logoparkscanner;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -12,14 +15,14 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.ConnectException;
 import java.net.URL;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -31,6 +34,7 @@ public class MainService extends Service {
 
     MyReceiver mReceiver;
     private final String MESSAGE_TAG = "urovo.rcv.message";
+    private Timer timer;
 
     private HandlerThread rThread, getThread, postThread;
     private Handler rHanlder, getHandler, postHandler;
@@ -39,6 +43,8 @@ public class MainService extends Service {
 
     private String url = "https://lgprk.ru/visit/?";
     final String LOG_TAG = "MainService";
+
+    private final static int NOTIFICATION_ID = 42;
 
     private static enum BarcodeTypes {
         unknown(0),all(-1),ean13(11),ean8(10),code39(1),code93(7),code128(3),qr(28),pdf417(17),interleaved2of5(6),upca(-117),upce(9);
@@ -107,13 +113,39 @@ public class MainService extends Service {
                 }
                 break;
             case Constants.IntentParams.StopService:
-                this.stopSelf();
+                stopSelf();
+                break;
+            case Constants.IntentParams.foregroundService:
+                foregroundService(intent.getBooleanExtra(Constants.IntentParams.foregroundService, true));
+                break;
+            case Constants.IntentParams.isOnlineTimer:
+                Timer(intent.getBooleanExtra(Constants.IntentParams.isOnlineTimer, true));
                 break;
             default:
                 Log.e(LOG_TAG, "onStartCommand " + intent.getAction());
                 break;
         }
         return START_REDELIVER_INTENT;
+    }
+
+    private void foregroundService(final boolean type) {
+        if (type) {
+            startForeground(NOTIFICATION_ID, new Notification());
+        }
+        else {
+            stopForeground(false);
+        }
+    }
+
+    private void Timer(final boolean action) {
+        if (action) {
+            timer = new Timer();
+            TimerTask isOnline = new isOnline();
+            timer.schedule(isOnline, Constants.delay, Constants.period);
+        }
+        else {
+            timer.cancel();
+        }
     }
 
     @Nullable
@@ -132,6 +164,30 @@ public class MainService extends Service {
         POST.setAction(action);
         POST.setPath(path);
         postHandler.post(POST);
+    }
+
+    private class isOnline extends TimerTask {
+
+        @Override
+        public void run() {
+            boolean temp;
+            ConnectivityManager cm =
+                    (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            if (netInfo != null && netInfo.isConnectedOrConnecting())
+            {
+                temp = true;
+            }
+            else {
+                temp = false;
+            }
+
+            Intent mIntent = new Intent();
+            mIntent.setAction(Constants.IntentParams.isOnlineTimer);
+            mIntent.putExtra(Constants.IntentParams.isOnlineTimer, temp);
+
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(mIntent);
+        }
     }
 
     private class InternetThread implements Runnable {

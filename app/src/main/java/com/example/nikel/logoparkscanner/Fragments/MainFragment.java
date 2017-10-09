@@ -35,6 +35,7 @@ public class MainFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mActivity = getActivity();
         LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcastReceiverQR, new IntentFilter(Constants.IntentParams.QR));
+        LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcastReceiverIsOnline, new IntentFilter(Constants.IntentParams.isOnlineTimer));
         LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcastReceiverData, new IntentFilter(Constants.IntentParams.RecData));
         super.onCreate(savedInstanceState);
     }
@@ -82,6 +83,13 @@ public class MainFragment extends Fragment {
         }
     };
 
+    BroadcastReceiver mBroadcastReceiverIsOnline = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+        }
+    };
+
     BroadcastReceiver mBroadcastReceiverData = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -92,7 +100,8 @@ public class MainFragment extends Fragment {
     @Override
     public void onDestroy() {
         LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(mBroadcastReceiverQR);
-        LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(mBroadcastReceiverQR);
+        LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(mBroadcastReceiverData);
+        LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(mBroadcastReceiverIsOnline);
         super.onDestroy();
     }
 }
