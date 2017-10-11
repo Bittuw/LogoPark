@@ -86,7 +86,6 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onStart() {
-
         super.onStart();
     }
 
@@ -112,7 +111,7 @@ public class MainFragment extends Fragment {
             list.setAdapter(adapter);
             list.setVisibility(View.VISIBLE);
 
-            ArrayMap map = (ArrayMap)temp.valueAt(2);
+            //ArrayMap map = (ArrayMap)temp.valueAt(2);
 
             /*String ToText = "";
             try {
