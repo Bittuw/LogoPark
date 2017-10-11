@@ -149,7 +149,8 @@ public class AuthFragment extends Fragment{
 
             if (validateCode(intent.getStringExtra("code"))) {
                 type = intent.getStringExtra("type");
-                code = (intent.getStringExtra("code")).replace(":", "=");
+                code = (intent.getStringExtra("code"))
+                        .replace(":", "=");
             }
             else {
                 mToast = Toast.makeText(mActivity, "Не верный штрих-код", Toast.LENGTH_SHORT);

@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
 
             Intent mIntent = new Intent(this, MainService.class);
             mIntent.setAction(Constants.IntentParams.StartRecCas);
-            mIntent.putExtra(Constants.IntentParams.foregroundService, true);
+            /*mIntent.putExtra(Constants.IntentParams.foregroundService, true);*/
 
             StartServiceTask(mIntent);
         }

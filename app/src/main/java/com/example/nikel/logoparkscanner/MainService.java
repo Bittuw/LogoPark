@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -16,6 +17,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -93,7 +96,7 @@ public class MainService extends Service {
                 getData(action, url + intent.getStringExtra(Constants.IntentParams.URL));
                 break;
             case Constants.IntentParams.RecData:
-                Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
+                Log.d(LOG_TAG, this.getClass().getName() + ": " + action + " " + intent.getStringExtra(Constants.IntentParams.URL));
                 getData(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
             case Constants.IntentParams.SendData:
@@ -234,7 +237,7 @@ public class MainService extends Service {
             }
             catch (IOException ex) {
                 Log.e(LOG_TAG, ex.getMessage());
-                Toast mToast = Toast.makeText(getApplicationContext(), "Проверте интернет соединение или отправте отчет о ошибках через меню", Toast.LENGTH_LONG);
+                Toast mToast = Toast.makeText(getApplicationContext(), "Проверте интернет соединение или сам штрих-код", Toast.LENGTH_LONG);
                 mToast.setGravity(Gravity.BOTTOM, 0, 0);
                 mToast.show();
             }
