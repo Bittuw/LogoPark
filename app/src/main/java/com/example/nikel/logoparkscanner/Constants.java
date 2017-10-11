@@ -41,6 +41,7 @@ public class Constants {
         public static final String QR = "qr";
         public static final String foregroundService  = "foregroundService";
         public static final String isOnlineTimer = "isOnlineTimer";
+        public static final String Picture = "picture";
     }
 
 }

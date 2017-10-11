@@ -112,6 +112,8 @@ public class MainFragment extends Fragment {
             list.setAdapter(adapter);
             list.setVisibility(View.VISIBLE);
 
+            ArrayMap map = (ArrayMap)temp.valueAt(2);
+
             /*String ToText = "";
             try {
                 for (int i = 0; i < temp.size(); i++) {

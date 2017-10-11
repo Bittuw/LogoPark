@@ -99,6 +99,9 @@ public class MainService extends Service {
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action + " " + intent.getStringExtra(Constants.IntentParams.URL));
                 getData(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
+            case Constants.IntentParams.Picture:
+                getPicture(action, intent.getStringExtra(Constants.IntentParams.URL));
+                break;
             case Constants.IntentParams.SendData:
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
                 sendData(action, intent.getStringExtra(Constants.IntentParams.URL));
@@ -167,6 +170,10 @@ public class MainService extends Service {
         POST.setAction(action);
         POST.setPath(path);
         postHandler.post(POST);
+    }
+
+    private void getPicture(String action, String path) {
+
     }
 
     private class isOnline extends TimerTask {
