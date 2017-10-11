@@ -105,7 +105,7 @@ public class MainFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(ArrayMap<String, Object> temp) {
+        protected void onPostExecute(ArrayMap<String, Object> temp) { //загрузить картинку
             //test.setText(Arrays.toString(v));
             ItemList adapter = new ItemList(temp);
             list.setAdapter(adapter);

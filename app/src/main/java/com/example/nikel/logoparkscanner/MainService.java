@@ -39,17 +39,16 @@ public class MainService extends Service {
     private final String MESSAGE_TAG = "urovo.rcv.message";
     private Timer timer;
 
-    private HandlerThread rThread, getThread, postThread;
-    private Handler rHanlder, getHandler, postHandler;
-    private InternetThread GET, POST;
-    private String type, code;
+    private HandlerThread rThread, getThread, postThread; // TODO создаваемые потоки
+    private Handler rHanlder, getHandler, postHandler; // TODO создаваемые хендлеры
+    private InternetThread GET, POST; // TODO интерфейсы загрузки
+    private String type, code; // TODO тип и код
 
-    private String url = "https://lgprk.ru/visit/?";
     final String LOG_TAG = "MainService";
 
     private final static int NOTIFICATION_ID = 42;
 
-    private static enum BarcodeTypes {
+    private static enum BarcodeTypes {// TODO определение типа штрих-кода
         unknown(0),all(-1),ean13(11),ean8(10),code39(1),code93(7),code128(3),qr(28),pdf417(17),interleaved2of5(6),upca(-117),upce(9);
 
         private final int code;
@@ -62,10 +61,6 @@ public class MainService extends Service {
                     return t;
             return unknown;
         }
-    }
-
-    public void setArguments() {
-
     }
 
     public void onCreate() {
@@ -85,7 +80,7 @@ public class MainService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(Intent intent, int flags, int startId) { // TODO выбор действия сервиса
         Log.d(LOG_TAG, "onStartCommand " + intent.getAction());
 
         String action = intent.getAction();
@@ -93,20 +88,20 @@ public class MainService extends Service {
         switch (action) {
             case Constants.IntentParams.Auth:
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
-                getData(action, url + intent.getStringExtra(Constants.IntentParams.URL));
+                getData(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
-            case Constants.IntentParams.RecData:
+            case Constants.IntentParams.RecData: // TODO get запрос
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action + " " + intent.getStringExtra(Constants.IntentParams.URL));
                 getData(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
             case Constants.IntentParams.Picture:
                 getPicture(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
-            case Constants.IntentParams.SendData:
+            case Constants.IntentParams.SendData: // TODO post запрос
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
                 sendData(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
-            case Constants.IntentParams.StartRecCas:
+            case Constants.IntentParams.StartRecCas: // TODO
                 if (rHanlder == null) {
                     rThread = new HandlerThread("ReceiveThread");
                     rThread.start();
