@@ -8,22 +8,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.util.ArrayMap;
+import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.nikel.logoparkscanner.Constants;
 import com.example.nikel.logoparkscanner.ItemList;
-import com.example.nikel.logoparkscanner.JSONParser.JSONParser;
 import com.example.nikel.logoparkscanner.MainService;
 import com.example.nikel.logoparkscanner.R;
 
@@ -31,15 +30,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by nikel on 29.09.2017.
@@ -79,7 +72,6 @@ public class MainFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         type = v.findViewById(R.id.TypeID);
         code = v.findViewById(R.id.CodeID);
-        test = v.findViewById(R.id.TEST);
         list = v.findViewById(R.id.fragment_info);
         return v;
     }
@@ -89,66 +81,56 @@ public class MainFragment extends Fragment {
         super.onStart();
     }
 
-    private class JSONAsync extends AsyncTask<JSONObject, Void, ArrayMap<String, Object>> {
+    private class JSONAsync extends AsyncTask<JSONObject, Void, SimpleArrayMap<String, String>> {
 
         @Override
-        protected ArrayMap<String, Object> doInBackground(JSONObject... temp) {
+        protected SimpleArrayMap<String, String> doInBackground(JSONObject... temp) {
             try {
                 JSONArray t = temp[0].getJSONArray("items");
                 json = t.getJSONObject(0);
-
             } catch (JSONException e) {
-                Log.e(LOG_TAG, "Ошибка при items");
+                Log.e(LOG_TAG, "Ошибка при извлечении JSONArray items");
             }
-
-            return getArrayMap(json);
+            return getSimpleArrayMap(json, getFilterResource());
         }
 
         @Override
-        protected void onPostExecute(ArrayMap<String, Object> temp) { //загрузить картинку
-            //test.setText(Arrays.toString(v));
+        protected void onPostExecute(SimpleArrayMap<String, String> temp) { // TODO загрузить картинку
             ItemList adapter = new ItemList(temp);
+            list.addHeaderView(); // TODO добавить хедер и футер
+            list.addFooterView();
             list.setAdapter(adapter);
             list.setVisibility(View.VISIBLE);
-
-            //ArrayMap map = (ArrayMap)temp.valueAt(2);
-
-            /*String ToText = "";
-            try {
-                for (int i = 0; i < temp.size(); i++) {
-                    ToText = ToText + temp.valueAt(i);
-                }
-
-                test.setText(ToText);
-            } catch (NullPointerException e) {
-                Log.e(LOG_TAG, e.getMessage());
-                test.setText("Неудача");
-            }*/
         }
 
-        private ArrayMap<String, Object> getArrayMap(JSONObject temp) {
-            ArrayMap<String, Object> map = new ArrayMap<>();
-            try {
+        @NonNull
+        private SimpleArrayMap<String, String> getSimpleArrayMap(JSONObject temp, ArrayList<String> jsonFilter) {
+            SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
 
+            try {
                 for (Iterator<String> it = temp.keys(); it.hasNext();) {
                     String key = it.next();
-                    if (temp.get(key) instanceof JSONObject) {
-                        map.put(key, getArrayMap(temp.getJSONObject(key)));
+                    if ((temp.get(key) instanceof JSONObject) && (jsonFilter.contains(key))) {
+                       map.putAll(getSimpleArrayMap(temp.getJSONObject(key), jsonFilter));
                     }
                     else {
                         map.put(key, temp.getString(key));
                     }
                 }
-
-                return map;
-
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage());
                 Toast mToast = Toast.makeText(mActivity, "Ошибка при  парсинге json в Async", Toast.LENGTH_SHORT);
                 mToast.setGravity(Gravity.BOTTOM, 0, 0);
                 mToast.show();
-                return null;
+            } catch (NullPointerException e) {
+                Log.e(LOG_TAG, e.getMessage());
             }
+            return map;
+        }
+
+        private ArrayList<String> getFilterResource() { // TODO сделать возврат ресурсов фильтра для json
+            String[] temp =  getResources().getStringArray(R.array.JSONFilter);
+            return new ArrayList<>(Arrays.asList(temp));
         }
     }
 

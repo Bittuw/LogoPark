@@ -2,6 +2,7 @@ package com.example.nikel.logoparkscanner;
 
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Pair;
+import android.support.v4.util.SimpleArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +14,9 @@ import android.widget.TextView;
  */
 
 public class ItemList extends BaseAdapter {
-    private final ArrayMap<String, Object> mList;
+    private final SimpleArrayMap<String, String> mList;
 
-    public ItemList(ArrayMap<String, Object> list) {
+    public ItemList(SimpleArrayMap<String, String> list) {
         mList = list;
     }
 
@@ -26,8 +27,7 @@ public class ItemList extends BaseAdapter {
 
     @Override
     public Pair getItem(int i) {
-        Pair<String, Object> pair = new Pair<>(mList.keyAt(i), mList.valueAt(i));
-        return pair;
+        return new Pair<>(mList.keyAt(i), mList.valueAt(i));
     }
 
     @Override
