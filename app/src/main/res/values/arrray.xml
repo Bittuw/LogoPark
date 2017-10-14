@@ -4,5 +4,6 @@
         <item>status</item>
         <item>govnumbertext</item>
         <item>drivername</item>
+        <item>name</item>
     </string-array>
 </resources>

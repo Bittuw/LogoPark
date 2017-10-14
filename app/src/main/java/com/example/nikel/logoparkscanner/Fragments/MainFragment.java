@@ -43,7 +43,7 @@ import java.util.Iterator;
  * Created by nikel on 29.09.2017.
  */
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements ExpandableListView.OnGroupClickListener {
 
     private TextView type, code, test;
     private Activity mActivity;
@@ -86,6 +86,7 @@ public class MainFragment extends Fragment {
         code = v.findViewById(R.id.CodeID);
         list = v.findViewById(R.id.fragment_info);
         elist = v.findViewById(R.id.fragment_list);
+        elist.setOnGroupClickListener(this);
         progressBar = v.findViewById(R.id.progressBar);
 
         prepareListView();
@@ -252,6 +253,19 @@ public class MainFragment extends Fragment {
             }
         }
     };
+
+    @Override
+    public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+        if (eadapter.currentGroupExpand != i) {
+            boolean temp = expandableListView.collapseGroup(eadapter.currentGroupExpand);
+            expandableListView.expandGroup(i);
+            eadapter.currentGroupExpand = i;
+        }
+        else {
+            expandableListView.expandGroup(i);
+        }
+        return true;
+    }
 
     @Override
     public void onDestroy() {
