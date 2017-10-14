@@ -18,6 +18,8 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
+import com.example.nikel.logoparkscanner.Fragments.MainFragment;
+
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -215,7 +217,7 @@ public class MainService extends Service {
                 StringBuilder buf = new StringBuilder();
                 String line;
 
-                while ((line=reader.readLine()) != null) {
+                while ((line = reader.readLine()) != null) {
                     buf.append(line + "\n");
                 }
 
@@ -225,12 +227,12 @@ public class MainService extends Service {
                     case Constants.IntentParams.Auth:
                         mIntent = new Intent(Constants.IntentParams.Auth);
                         mIntent.putExtra(Constants.IntentParams.GetData, buf.toString());
-                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(mIntent);
+                        sendBroadcast(mIntent);
                         break;
                     case Constants.IntentParams.RecData:
                         mIntent = new Intent(Constants.IntentParams.RecData);
                         mIntent.putExtra(Constants.IntentParams.GetData, buf.toString());
-                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(mIntent);
+                        sendBroadcast(mIntent);
                         break;
                     default:
                         Log.e(LOG_TAG, this.getClass().getName());
@@ -283,13 +285,14 @@ public class MainService extends Service {
             code = new String(barcode,0, barocodelen);
             type = BarcodeTypes.decodeType(temp).name();
 
-            Intent mIntent = new Intent(MainService.this, MainActivity.class);
+            Intent mIntent = new Intent();
             mIntent.setAction(Constants.IntentParams.QR);
             mIntent.putExtra("type", type);
             mIntent.putExtra("code", code);
-            mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            //mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             //LocalBroadcastManager.getInstance(context).sendBroadcast(message);
-            context.startActivity(mIntent);
+            sendBroadcast(mIntent);
+            //context.startActivity(mIntent);
         }
 
         public MyReceiver() {

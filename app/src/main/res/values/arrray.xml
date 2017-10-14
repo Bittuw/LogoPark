@@ -2,7 +2,7 @@
 <resources>
     <string-array name="JSONFilter">
         <item>status</item>
-        <item>company</item>
-        <item>info</item>
+        <item>govnumbertext</item>
+        <item>drivername</item>
     </string-array>
 </resources>

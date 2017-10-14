@@ -100,13 +100,13 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         if (!isRestarting)
             switch (getIntent().getAction()) {
                 case Constants.IntentParams.QR:
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(getIntent());
+                    sendBroadcast(getIntent());
                     break;
                 case Constants.IntentParams.Auth:
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(getIntent());
+                    sendBroadcast(getIntent());
                     break;
                 case Constants.IntentParams.RecData:
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(getIntent());
+                    sendBroadcast(getIntent());
                     break;
                 default:
                     Log.e(LOG_TAG, "onResume " + getIntent().getAction());
@@ -246,6 +246,9 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
             editor.putString(Constants.Password, mBundle.getString(Constants.Password));
             editor.putString(Constants.User, mBundle.getString(Constants.User));
             editor.putString(Constants.IS_AUTHARIZED, Constants.YES);
+
+            user = mBundle.getString(Constants.User);
+            password = mBundle.getString(Constants.Password);
         }
         editor.apply();
     }

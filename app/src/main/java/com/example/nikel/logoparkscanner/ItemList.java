@@ -1,5 +1,6 @@
 package com.example.nikel.logoparkscanner;
 
+import android.content.Context;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Pair;
 import android.support.v4.util.SimpleArrayMap;
@@ -7,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
 /**
@@ -14,9 +16,14 @@ import android.widget.TextView;
  */
 
 public class ItemList extends BaseAdapter {
-    private final SimpleArrayMap<String, String> mList;
+    private SimpleArrayMap<String, Object> mList;
 
-    public ItemList(SimpleArrayMap<String, String> list) {
+    public ItemList() {    }
+    public ItemList(SimpleArrayMap<String, Object> list) {
+        mList = list;
+    }
+
+    public void setList(SimpleArrayMap<String, Object> list) {
         mList = list;
     }
 
