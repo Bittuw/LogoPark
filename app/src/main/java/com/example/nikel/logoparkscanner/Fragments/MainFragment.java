@@ -6,28 +6,24 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ExpandableListView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.nikel.logoparkscanner.Constants;
 import com.example.nikel.logoparkscanner.ExpItemList;
-import com.example.nikel.logoparkscanner.ItemList;
 import com.example.nikel.logoparkscanner.MainService;
 import com.example.nikel.logoparkscanner.R;
 
@@ -43,19 +39,19 @@ import java.util.Iterator;
  * Created by nikel on 29.09.2017.
  */
 
-public class MainFragment extends Fragment implements ExpandableListView.OnGroupClickListener {
+public class MainFragment extends Fragment {
 
-    private TextView type, code, test;
+    private TextView type, code;
     private Activity mActivity;
-    private AuthFragment.NoticeListener mListener;
+    public static AuthFragment.NoticeListener mListener;
     private static final String LOG_TAG = "MainFragment";
-    private String user, url;
-    private ListView list;
-    private ExpandableListView elist;
+    private String user, url, actionString;
+    public static ExpandableListView list;
     private JSONObject json;
-    private ProgressBar progressBar;
-    private ItemList adapter;
-    private ExpItemList eadapter;
+    public static ProgressBar progressBar;
+    public static  ExpItemList adapter;
+
+    private Button more, action;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,10 +80,7 @@ public class MainFragment extends Fragment implements ExpandableListView.OnGroup
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         type = v.findViewById(R.id.TypeID);
         code = v.findViewById(R.id.CodeID);
-        list = v.findViewById(R.id.fragment_info);
-        elist = v.findViewById(R.id.fragment_list);
-        elist.setOnGroupClickListener(this);
-        elist.setAlpha((float)0.5);
+        list = v.findViewById(R.id.fragment_list);
         progressBar = v.findViewById(R.id.progressBar);
 
         prepareListView();
@@ -106,14 +99,17 @@ public class MainFragment extends Fragment implements ExpandableListView.OnGroup
     }
 
     private void prepareListView() {
-        /*adapter = new ItemList();*/
-        eadapter = new ExpItemList();
+        adapter = new ExpItemList(list, mActivity);
         View footer = mActivity.getLayoutInflater().inflate(R.layout.footer_view, null, false);
         View header = mActivity.getLayoutInflater().inflate(R.layout.header_view, null, false);
-        /*list.addHeaderView(header);
-        list.addFooterView(footer);*/
-        elist.addHeaderView(header);
-        elist.addFooterView(footer);
+        list.addHeaderView(header);
+        list.addFooterView(footer);
+
+        action = footer.findViewById(R.id.Action);
+        more = footer.findViewById(R.id.More);
+
+        action.setOnClickListener(onActionClick);
+        more.setOnClickListener(onMoreClick);
     }
 
     private class JSONAsync extends AsyncTask<JSONObject, Void, SimpleArrayMap<String, Object>> {
@@ -136,21 +132,41 @@ public class MainFragment extends Fragment implements ExpandableListView.OnGroup
 
         @Override
         protected void onPostExecute(SimpleArrayMap<String, Object> temp) { // TODO загрузить картинку
-            progressBar.setVisibility(View.INVISIBLE);
 
-            if (elist.getAdapter() != null) {
-                /*adapter.setList(temp);
-                adapter.notifyDataSetChanged();*/
-                eadapter.setList(temp);
-                eadapter.notifyDataSetChanged();
+            if (list.getAdapter() != null) {
+                adapter.setList(temp);
+                //adapter.notifyDataSetChanged();
             }
             else {
-                /*adapter.setList(temp);
-                list.setAdapter(adapter);*/
-                eadapter.setList(temp);
-                elist.setAdapter(eadapter);
+                adapter.setList(temp);
+                //list.setAdapter(adapter);
             }
-            elist.setVisibility(View.VISIBLE);
+
+            switch (((SimpleArrayMap<String, String>) temp.get("status")).get("id")) {
+                case "5":
+                    actionString = "5";
+                    action.setText("Пропустить");
+                    break;
+
+                case "4":
+                    actionString = "4";
+                    action.setVisibility(View.INVISIBLE);
+                    break;
+
+                case "3":
+                    actionString = "3";
+                    action.setText("Выпустить");
+                    break;
+
+                default:
+                    adapter.Stop();
+                    Log.e(LOG_TAG, "Невалидный JSON");
+
+                    Toast mToast = Toast.makeText(mActivity, "Ошибки получение данных", Toast.LENGTH_SHORT);
+                    mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                    mToast.show();
+                    break;
+            }
         }
 
         @Nullable
@@ -198,7 +214,7 @@ public class MainFragment extends Fragment implements ExpandableListView.OnGroup
             return map;
         }
 
-        private ArrayList<String> getFilterResource() { // TODO сделать возврат ресурсов фильтра для json
+        private ArrayList<String> getFilterResource() {
             String[] temp =  getResources().getStringArray(R.array.JSONFilter);
             return new ArrayList<>(Arrays.asList(temp));
         }
@@ -209,22 +225,10 @@ public class MainFragment extends Fragment implements ExpandableListView.OnGroup
         public void onReceive(Context context, final Intent intent) {
             switch (intent.getAction()) {
                 case Constants.IntentParams.QR:
-                    /*Log.d(LOG_TAG, intent.getAction());
-                    progressBar.setVisibility(View.VISIBLE);
-                    type.setText(intent.getStringExtra("type"));
-
-                    if (!intent.getStringExtra("code").contains("https")) {
-                        code.setText(intent.getStringExtra("code").replace("http", "https"));
-                    }
-                    else {
-                        code.setText(intent.getStringExtra("code"));
-                    }
-                    url = code.getText() + "?" + user;*/
-
 
                     Log.d(LOG_TAG, intent.getAction());
                     progressBar.setVisibility(View.VISIBLE);
-                    elist.setVisibility(View.INVISIBLE);
+                    list.setVisibility(View.INVISIBLE);
                     type.setText(intent.getStringExtra("type"));
 
                     if (!intent.getStringExtra("code").contains("https")) {
@@ -256,23 +260,42 @@ public class MainFragment extends Fragment implements ExpandableListView.OnGroup
                     new JSONAsync().execute(json);
 
                     break;
+                case Constants.IntentParams.isOnlineTimer:
+                    break;
                 default:
+                    break;
             }
         }
     };
 
-    @Override
-    public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
-        if (eadapter.currentGroupExpand != i) {
-            boolean temp = expandableListView.collapseGroup(eadapter.currentGroupExpand);
-            expandableListView.expandGroup(i);
-            eadapter.currentGroupExpand = i;
+    View.OnClickListener onActionClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Toast mToast;
+            switch (actionString) {
+                case "Пропустить":
+                    mToast = Toast.makeText(mActivity, "Пропустить", Toast.LENGTH_SHORT);
+                    mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                    mToast.show();
+                    break;
+                case "Выпустить":
+                    mToast = Toast.makeText(mActivity, "Выпустить" + action, Toast.LENGTH_SHORT);
+                    mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                    mToast.show();
+                default:
+                    Log.e(LOG_TAG, "onClick");
+                    break;
+            }
         }
-        else {
-            expandableListView.expandGroup(i);
+    };
+
+    View.OnClickListener onMoreClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse((String) code.getText()));
+            startActivity(mIntent);
         }
-        return true;
-    }
+    };
 
     @Override
     public void onDestroy() {

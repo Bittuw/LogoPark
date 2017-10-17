@@ -2,8 +2,59 @@
 <resources>
     <string-array name="JSONFilter">
         <item>status</item>
-        <item>govnumbertext</item>
-        <item>drivername</item>
-        <item>name</item>
+        <item>info</item>
+        <item>company</item>
+        <item>created</item>
+        <item>number</item>
     </string-array>
+
+    <string-array name="toShowOnList">
+        <item>status</item>
+        <item>name</item>
+
+        <item>info</item>
+        <item>drivername</item>
+        <item>govnumber</item>
+        <item>cartype</item>
+        <item>visit</item>
+
+        <item>number</item>
+    </string-array>
+
+    <string-array name="doNotToShowOnList">
+        <item>id</item>
+    </string-array>
+
+    <string-array name="translate">
+        <item>@array/translate_key</item>
+        <item>@array/translate_value</item>
+    </string-array>
+
+    <string-array name="translate_key">
+        <item>status</item>
+        <item>name</item>
+
+        <item>info</item>
+        <item>drivername</item>
+        <item>govnumber</item>
+        <item>cartype</item>
+        <item>visit</item>
+
+        <item>number</item>
+    </string-array>
+
+    <string-array name="translate_value">
+        <item>Статус</item>
+        <item>Имя</item>
+
+        <item>Информация</item>
+        <item>Имя водителя</item>
+        <item>Номер</item>
+        <item>Тип</item>
+        <item>Визит</item>
+
+        <item>Номер пропуска</item>
+    </string-array>
+
+
 </resources>

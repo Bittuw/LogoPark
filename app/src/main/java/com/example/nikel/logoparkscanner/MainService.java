@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Timer;
@@ -37,7 +40,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class MainService extends Service {
 
-    MyReceiver mReceiver;
     private final String MESSAGE_TAG = "urovo.rcv.message";
     private Timer timer;
     private boolean isAliveActivity;
@@ -67,7 +69,7 @@ public class MainService extends Service {
     }
 
     public void onCreate() {
-        super.onCreate();
+
         Log.d(LOG_TAG, "onCreate");
 
         getThread = new HandlerThread("getThread");
@@ -80,6 +82,8 @@ public class MainService extends Service {
 
         GET = new InternetThread();
         POST = new InternetThread();
+
+        super.onCreate();
     }
 
     @Override
@@ -109,8 +113,10 @@ public class MainService extends Service {
                     rThread = new HandlerThread("ReceiveThread");
                     rThread.start();
                     rHanlder = new Handler(rThread.getLooper());
-                    mReceiver = new MyReceiver();
-                    registerReceiver(mReceiver, new IntentFilter(MESSAGE_TAG), null, rHanlder);
+
+                    IntentFilter mIntentFilter = new IntentFilter();
+                    mIntentFilter.addAction(Constants.IntentParams.UROVO);
+                    registerReceiver(mBroadcastReceiver, mIntentFilter, null, rHanlder);
                 }
                 else {
                     Log.e(LOG_TAG, action + ": Service is already working");
@@ -171,7 +177,9 @@ public class MainService extends Service {
     }
 
     private void getPicture(String action, String path) {
-
+        GET.setPath(path);
+        GET.setAction(action);
+        getHandler.post(GET);
     }
 
     private class isOnline extends TimerTask {
@@ -208,21 +216,39 @@ public class MainService extends Service {
         @Override
         public void run() {
             BufferedReader reader = null;
+            StringBuilder buf = new StringBuilder();
+            Bitmap mBitmap = null;
+            Intent mIntent;
             try{
-                java.net.URL url=new URL(path);
-                HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setReadTimeout(10000);
-                connection.connect();
-                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder buf = new StringBuilder();
-                String line;
+                switch (action) {
+                    case Constants.IntentParams.RecData:
+                        java.net.URL url=new URL(path);
+                        HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+                        connection.setRequestMethod("GET");
+                        connection.setReadTimeout(10000);
+                        connection.connect();
+                        reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                        String line;
 
-                while ((line = reader.readLine()) != null) {
-                    buf.append(line + "\n");
+                        while ((line = reader.readLine()) != null) {
+                            buf.append(line + "\n");
+                        }
+                        break;
+                    case Constants.IntentParams.Picture:
+                        try {
+                            InputStream in = new java.net.URL(path).openStream();
+                            mBitmap = BitmapFactory.decodeStream(in);
+                        } catch (Exception e) {
+                            Log.e(LOG_TAG, e.getMessage());
+                        }
+                        break;
+                    default:
+                        Log.e(LOG_TAG, getClass().getName() + " error download");
+
+                        Toast mToast = Toast.makeText(getApplicationContext(), "Ошибка интернет-соединения: дейстиве - " + action, Toast.LENGTH_SHORT);
+                        mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                        mToast.show();
                 }
-
-                Intent mIntent;
 
                 switch (action) {
                     case Constants.IntentParams.Auth:
@@ -235,6 +261,10 @@ public class MainService extends Service {
                         mIntent.putExtra(Constants.IntentParams.GetData, buf.toString());
                         sendBroadcast(mIntent);
                         break;
+                    case Constants.IntentParams.Picture:
+                        mIntent = new Intent(Constants.IntentParams.Picture);
+                        mIntent.putExtra(Constants.IntentParams.Picture, mBitmap);
+                        sendBroadcast(mIntent);
                     default:
                         Log.e(LOG_TAG, this.getClass().getName());
                         break;
@@ -271,13 +301,12 @@ public class MainService extends Service {
         Log.d(LOG_TAG, "onDestroy");
 
         if (rThread != null) {
-            unregisterReceiver(mReceiver);
+            unregisterReceiver(mBroadcastReceiver);
             rThread.quitSafely();
         }
     }
 
-    private class MyReceiver extends BroadcastReceiver {
-
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "onReceive " + intent.getAction());
@@ -295,18 +324,14 @@ public class MainService extends Service {
             //LocalBroadcastManager.getInstance(context).sendBroadcast(message);
             sendBroadcast(mIntent);
             //context.startActivity(mIntent);
-            if (isAliveActivity) {
-                sendBroadcast(mIntent);
-            }
+            /*if (isAliveActivity) {*/
+                /*sendBroadcast(mIntent);*/
+           /* }
             else {
                 mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 context.startActivity(mIntent);
-            }
+            }*/
         }
-
-        public MyReceiver() {
-
-        }
-    }
+    };
 }
 
