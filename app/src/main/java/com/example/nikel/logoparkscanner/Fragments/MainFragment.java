@@ -87,6 +87,7 @@ public class MainFragment extends Fragment implements ExpandableListView.OnGroup
         list = v.findViewById(R.id.fragment_info);
         elist = v.findViewById(R.id.fragment_list);
         elist.setOnGroupClickListener(this);
+        elist.setAlpha((float)0.5);
         progressBar = v.findViewById(R.id.progressBar);
 
         prepareListView();
@@ -96,6 +97,12 @@ public class MainFragment extends Fragment implements ExpandableListView.OnGroup
     @Override
     public void onStart() {
         super.onStart();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(LOG_TAG, "onSaveInstanceState");
+        super.onSaveInstanceState(outState);
     }
 
     private void prepareListView() {

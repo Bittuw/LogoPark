@@ -14,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,7 +21,6 @@ import com.example.nikel.logoparkscanner.Constants;
 import com.example.nikel.logoparkscanner.MainService;
 import com.example.nikel.logoparkscanner.R;
 
-import java.util.regex.*;
 /**
  * Created by nikel on 27.09.2017.
  */
@@ -50,8 +48,8 @@ public class AuthFragment extends Fragment{
         mActivity = getActivity();
         mListener = (NoticeListener) mActivity;
 
-        LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcasrReceiverQR, new IntentFilter(Constants.IntentParams.QR));
-        LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcasrReceiverAuth, new IntentFilter(Constants.IntentParams.Auth));
+        mActivity.registerReceiver(mBroadcasrReceiverQR, new IntentFilter(Constants.IntentParams.QR));
+        mActivity.registerReceiver(mBroadcastReceiverAuth, new IntentFilter(Constants.IntentParams.Auth));
     }
 
     @Override
@@ -73,7 +71,7 @@ public class AuthFragment extends Fragment{
         return code.startsWith("user:");
     }
 
-    private void creatDialog() {
+    private void createDialog() {
         Auth.setClickable(false);
         confirm_dlg = new DiaFragment();
         Bundle mBundle = new Bundle();
@@ -86,7 +84,7 @@ public class AuthFragment extends Fragment{
     public View.OnClickListener Listener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            creatDialog();
+            createDialog();
 
             Intent mIntent = new Intent(mActivity, MainService.class);
             mIntent.setAction(Constants.IntentParams.StartRecCas);
@@ -131,8 +129,8 @@ public class AuthFragment extends Fragment{
 
     @Override
     public void onDestroy() {
-        LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(mBroadcasrReceiverQR);
-        LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(mBroadcasrReceiverAuth);
+        mActivity.unregisterReceiver(mBroadcasrReceiverQR);
+        mActivity.unregisterReceiver(mBroadcastReceiverAuth);
         super.onDestroy();
     }
 
@@ -140,7 +138,7 @@ public class AuthFragment extends Fragment{
         @Override
         public void onReceive(Context context, Intent intent) {
             if (confirm_dlg == null) {
-                creatDialog();
+                createDialog();
             }
 
             Toast mToast = Toast.makeText(mActivity, "Штрих-код просканирован", Toast.LENGTH_SHORT);
@@ -166,7 +164,7 @@ public class AuthFragment extends Fragment{
         }
     };
 
-    private BroadcastReceiver mBroadcasrReceiverAuth = new BroadcastReceiver() {
+    private BroadcastReceiver mBroadcastReceiverAuth = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Toast mToast = Toast.makeText(mActivity, "Подтверждение учетной записи", Toast.LENGTH_SHORT);

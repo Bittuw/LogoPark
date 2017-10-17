@@ -23,7 +23,7 @@ import com.example.nikel.logoparkscanner.Fragments.DiaFragment;
 import com.example.nikel.logoparkscanner.Fragments.MainFragment;
 import com.example.nikel.logoparkscanner.Fragments.WebFragment;
 
-public class MainActivity extends AppCompatActivity implements AuthFragment.NoticeListener{ // TODO реализация логики в фрагментах
+public class MainActivity extends AppCompatActivity implements AuthFragment.NoticeListener { // TODO реализация логики в фрагментах
 
 
     private WebFragment webFragment; // TODO Фрагмен веб формы
@@ -43,9 +43,11 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     private static final String LOG_TAG = "MainActivity";
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreate " + getIntent().getAction());
+
         super.onCreate(savedInstanceState);
 
         getAppInfo();
@@ -128,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     }
 
     @Override
-    protected void onNewIntent(Intent intent) { // TODO Получение новый данных (Если активити запущена)
+    protected void onNewIntent(Intent intent) {
         Log.d(LOG_TAG, "onNewIntent " + intent.getAction());
         setIntent(intent);
         super.onNewIntent(intent);
@@ -317,17 +319,6 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         manual_dlg.setArguments(mBundle);
         manual_dlg.setOnClickListener(positiveListener, negativeListener);
         manual_dlg.show(getFragmentManager(), manual_dlg.toString());
-    }
-
-    public static boolean isOnline(Context context) {
-        ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnectedOrConnecting())
-        {
-            return true;
-        }
-        return false;
     }
 
 }

@@ -40,6 +40,7 @@ public class MainService extends Service {
     MyReceiver mReceiver;
     private final String MESSAGE_TAG = "urovo.rcv.message";
     private Timer timer;
+    private boolean isAliveActivity;
 
     private HandlerThread rThread, getThread, postThread; // TODO создаваемые потоки
     private Handler rHanlder, getHandler, postHandler; // TODO создаваемые хендлеры
@@ -264,6 +265,7 @@ public class MainService extends Service {
         }
     }
 
+
     public void onDestroy() {
         super.onDestroy();
         Log.d(LOG_TAG, "onDestroy");
@@ -293,6 +295,13 @@ public class MainService extends Service {
             //LocalBroadcastManager.getInstance(context).sendBroadcast(message);
             sendBroadcast(mIntent);
             //context.startActivity(mIntent);
+            if (isAliveActivity) {
+                sendBroadcast(mIntent);
+            }
+            else {
+                mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                context.startActivity(mIntent);
+            }
         }
 
         public MyReceiver() {
