@@ -102,6 +102,7 @@ public class MainFragment extends Fragment {
         adapter = new ExpItemList(list, mActivity);
         View footer = mActivity.getLayoutInflater().inflate(R.layout.footer_view, null, false);
         View header = mActivity.getLayoutInflater().inflate(R.layout.header_view, null, false);
+        header.setFocusable(false);
         list.addHeaderView(header);
         list.addFooterView(footer);
 
@@ -127,6 +128,7 @@ public class MainFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
+            action.setVisibility(View.GONE);
             super.onPreExecute();
         }
 
@@ -145,16 +147,17 @@ public class MainFragment extends Fragment {
             switch (((SimpleArrayMap<String, String>) temp.get("status")).get("id")) {
                 case "5":
                     actionString = "5";
+                    action.setVisibility(View.VISIBLE);
                     action.setText("Пропустить");
                     break;
 
                 case "4":
                     actionString = "4";
-                    action.setVisibility(View.INVISIBLE);
                     break;
 
                 case "3":
                     actionString = "3";
+                    action.setVisibility(View.VISIBLE);
                     action.setText("Выпустить");
                     break;
 

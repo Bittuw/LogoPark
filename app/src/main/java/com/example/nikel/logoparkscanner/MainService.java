@@ -242,6 +242,8 @@ public class MainService extends Service {
                             Log.e(LOG_TAG, e.getMessage());
                         }
                         break;
+                    case "POST":
+                        break;
                     default:
                         Log.e(LOG_TAG, getClass().getName() + " error download");
 

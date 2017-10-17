@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        menu.add(0, 1, 0, "Settings");
+        menu.add(0, 1, 0, "<Empty yet>");
         return true;
     }
 
