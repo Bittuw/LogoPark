@@ -48,6 +48,7 @@ public class Constants {
         public static final String isOnlineTimer = "isOnlineTimer";
         public static final String Picture = "picture";
         public static final String UROVO = "urovo.rcv.message";
+        public static final String Success = "Success";
     }
 
     public static final String JSON =

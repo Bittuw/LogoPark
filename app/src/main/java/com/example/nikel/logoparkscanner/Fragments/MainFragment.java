@@ -62,6 +62,7 @@ public class MainFragment extends Fragment {
         mIntentFilter.addAction(Constants.IntentParams.RecData);
         mIntentFilter.addAction(Constants.IntentParams.QR);
         mIntentFilter.addAction(Constants.IntentParams.isOnlineTimer);
+        mIntentFilter.addAction(Constants.IntentParams.Success);
         mActivity.registerReceiver(mBroadcastReceiver, mIntentFilter);
 
         mListener = (AuthFragment.NoticeListener) mActivity;
@@ -264,6 +265,22 @@ public class MainFragment extends Fragment {
 
                     break;
                 case Constants.IntentParams.isOnlineTimer:
+                    break;
+                case Constants.IntentParams.Success:
+                    if (intent.getBooleanExtra(Constants.IntentParams.Success, false)) {
+                        adapter.setList(null);
+                        adapter.notifyDataSetChanged();
+                        list.setVisibility(View.GONE);
+
+                        Toast mToast = Toast.makeText(mActivity, "Успешно отправленно", Toast.LENGTH_SHORT);
+                        mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                        mToast.show();
+                    }
+                    else {
+                        Toast mToast = Toast.makeText(mActivity, "Не успешная отправка", Toast.LENGTH_SHORT);
+                        mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                        mToast.show();
+                    }
                     break;
                 default:
                     break;

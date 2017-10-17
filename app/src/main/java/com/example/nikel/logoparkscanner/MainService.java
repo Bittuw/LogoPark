@@ -44,16 +44,16 @@ public class MainService extends Service {
     private Timer timer;
     private boolean isAliveActivity;
 
-    private HandlerThread rThread, getThread, postThread; // TODO создаваемые потоки
-    private Handler rHanlder, getHandler, postHandler; // TODO создаваемые хендлеры
-    private InternetThread GET, POST; // TODO интерфейсы загрузки
-    private String type, code; // TODO тип и код
+    private HandlerThread rThread, getThread, postThread;
+    private Handler rHanlder, getHandler, postHandler;
+    private InternetThread GET, POST;
+    private String type, code;
 
     final String LOG_TAG = "MainService";
 
     private final static int NOTIFICATION_ID = 42;
 
-    private static enum BarcodeTypes {// TODO определение типа штрих-кода
+    private static enum BarcodeTypes {
         unknown(0),all(-1),ean13(11),ean8(10),code39(1),code93(7),code128(3),qr(28),pdf417(17),interleaved2of5(6),upca(-117),upce(9);
 
         private final int code;
@@ -87,7 +87,7 @@ public class MainService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) { // TODO выбор действия сервиса
+    public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(LOG_TAG, "onStartCommand " + intent.getAction());
 
         String action = intent.getAction();
@@ -97,18 +97,18 @@ public class MainService extends Service {
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
                 getData(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
-            case Constants.IntentParams.RecData: // TODO get запрос
+            case Constants.IntentParams.RecData:
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action + " " + intent.getStringExtra(Constants.IntentParams.URL));
                 getData(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
             case Constants.IntentParams.Picture:
                 getPicture(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
-            case Constants.IntentParams.SendData: // TODO post запрос
+            case Constants.IntentParams.SendData:
                 Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
                 sendData(action, intent.getStringExtra(Constants.IntentParams.URL));
                 break;
-            case Constants.IntentParams.StartRecCas: // TODO
+            case Constants.IntentParams.StartRecCas:
                 if (rHanlder == null) {
                     rThread = new HandlerThread("ReceiveThread");
                     rThread.start();
@@ -139,12 +139,17 @@ public class MainService extends Service {
     }
 
     private void foregroundService(final boolean type) {
+
         if (type) {
             startForeground(NOTIFICATION_ID, new Notification());
         }
         else {
             stopForeground(false);
         }
+
+        Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса как срытый", Toast.LENGTH_SHORT);
+        mToast.setGravity(Gravity.BOTTOM, 0, 0);
+        mToast.show();
     }
 
     private void Timer(final boolean action) {
@@ -221,6 +226,7 @@ public class MainService extends Service {
             Bitmap mBitmap = null;
             Intent mIntent;
             HttpsURLConnection connection;
+            boolean success = false;
             try{
                 switch (action) {
                     case Constants.IntentParams.RecData:
@@ -244,7 +250,7 @@ public class MainService extends Service {
                             Log.e(LOG_TAG, e.getMessage());
                         }
                         break;
-                    case "POST":
+                    case "POST": // TODO сделать POST запрос
                         url = new URL(path);
                         connection = (HttpsURLConnection)url.openConnection();
                         connection.setRequestMethod("POST");
@@ -252,6 +258,12 @@ public class MainService extends Service {
                         connection.setDoOutput(false);
                         connection.setReadTimeout(10000);
                         connection.connect();
+
+                        if (connection.getResponseCode() == 200)
+                            success = true;
+                        else
+                            success = false;
+
                         break;
                     default:
                         Log.e(LOG_TAG, getClass().getName() + " error download");
@@ -276,6 +288,11 @@ public class MainService extends Service {
                         mIntent = new Intent(Constants.IntentParams.Picture);
                         mIntent.putExtra(Constants.IntentParams.Picture, mBitmap);
                         sendBroadcast(mIntent);
+                    case "POST":
+                        mIntent = new Intent(Constants.IntentParams.Success);
+                        mIntent.putExtra(Constants.IntentParams.Success, success);
+                        sendBroadcast(mIntent);
+                        break;
                     default:
                         Log.e(LOG_TAG, this.getClass().getName());
                         break;
@@ -317,7 +334,7 @@ public class MainService extends Service {
         }
     }
 
-    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() { // TODO сделать запуск активити или передачу по broadcast
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "onReceive " + intent.getAction());

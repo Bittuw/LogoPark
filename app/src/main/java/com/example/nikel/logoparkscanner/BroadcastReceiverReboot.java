@@ -22,6 +22,8 @@ public class BroadcastReceiverReboot extends BroadcastReceiver {
                 Intent in = new Intent(context, MainService.class);
                 in.setAction(Constants.IntentParams.StartRecCas);
                 context.startService(in);
+                in.setAction(Constants.IntentParams.foregroundService);
+                context.startService(in);
                 break;
             case "onCreateActivity":
 
