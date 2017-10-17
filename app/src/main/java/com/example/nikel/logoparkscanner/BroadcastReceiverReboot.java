@@ -17,9 +17,21 @@ public class BroadcastReceiverReboot extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(LOG_TAG, "onReceive " + intent.getAction());
-        Intent in = new Intent(context, MainService.class);
-        in.setAction(Constants.IntentParams.StartRecCas);
-        context.startService(in);
-        Toast.makeText(context.getApplicationContext(), "onReceive " + in.getAction(), Toast.LENGTH_LONG).show();
+        switch (intent.getAction()) {
+            case Intent.ACTION_BOOT_COMPLETED:
+                Intent in = new Intent(context, MainService.class);
+                in.setAction(Constants.IntentParams.StartRecCas);
+                context.startService(in);
+                break;
+            case "onCreateActivity":
+
+                break;
+            case "onDestroyActivity":
+
+                break;
+            default:
+                break;
+        }
+
     }
 }

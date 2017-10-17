@@ -46,9 +46,15 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
     }
 
     public void setList (SimpleArrayMap<String, Object> temp){
-        mGroups = temp;
-        executer = new FilterMap();
-        executer.execute(mGroups);
+        if (temp != null) {
+            mGroups = temp;
+            executer = new FilterMap();
+            executer.execute(mGroups);
+        }
+        else {
+            mGroups.clear();
+            mFilteredGroups.clear();
+        }
     }
 
     public void Stop() {

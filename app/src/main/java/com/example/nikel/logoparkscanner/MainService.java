@@ -216,14 +216,16 @@ public class MainService extends Service {
         @Override
         public void run() {
             BufferedReader reader = null;
+            java.net.URL url;
             StringBuilder buf = new StringBuilder();
             Bitmap mBitmap = null;
             Intent mIntent;
+            HttpsURLConnection connection;
             try{
                 switch (action) {
                     case Constants.IntentParams.RecData:
-                        java.net.URL url=new URL(path);
-                        HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+                        url = new URL(path);
+                        connection = (HttpsURLConnection)url.openConnection();
                         connection.setRequestMethod("GET");
                         connection.setReadTimeout(10000);
                         connection.connect();
@@ -243,6 +245,13 @@ public class MainService extends Service {
                         }
                         break;
                     case "POST":
+                        url = new URL(path);
+                        connection = (HttpsURLConnection)url.openConnection();
+                        connection.setRequestMethod("POST");
+                        connection.setDoInput(false);
+                        connection.setDoOutput(false);
+                        connection.setReadTimeout(10000);
+                        connection.connect();
                         break;
                     default:
                         Log.e(LOG_TAG, getClass().getName() + " error download");

@@ -19,6 +19,11 @@
         <item>visit</item>
 
         <item>number</item>
+
+        <item>created</item>
+        <item>post</item>
+
+        <item>company</item>
     </string-array>
 
     <string-array name="doNotToShowOnList">
@@ -41,6 +46,11 @@
         <item>visit</item>
 
         <item>number</item>
+
+        <item>created</item>
+        <item>post</item>
+
+        <item>company</item>
     </string-array>
 
     <string-array name="translate_value">
@@ -51,9 +61,15 @@
         <item>Имя водителя</item>
         <item>Номер</item>
         <item>Тип</item>
-        <item>Визит</item>
+        <item>Цель</item>
 
         <item>Номер пропуска</item>
+
+        <item>Кем создана запись</item>
+        <item>Пост</item>
+
+        <item>Компания</item>
+        <item>Название</item>
     </string-array>
 
 

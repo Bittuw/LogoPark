@@ -51,7 +51,7 @@ public class MainFragment extends Fragment {
     public static ProgressBar progressBar;
     public static  ExpItemList adapter;
 
-    private Button more, action;
+    private Button more, action, close;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,15 +102,17 @@ public class MainFragment extends Fragment {
         adapter = new ExpItemList(list, mActivity);
         View footer = mActivity.getLayoutInflater().inflate(R.layout.footer_view, null, false);
         View header = mActivity.getLayoutInflater().inflate(R.layout.header_view, null, false);
-        header.setFocusable(false);
+        header.setOnClickListener(null);
         list.addHeaderView(header);
         list.addFooterView(footer);
 
         action = footer.findViewById(R.id.Action);
         more = footer.findViewById(R.id.More);
+        close = footer.findViewById(R.id.Close);
 
         action.setOnClickListener(onActionClick);
         more.setOnClickListener(onMoreClick);
+        close.setOnClickListener(onCloseClick);
     }
 
     private class JSONAsync extends AsyncTask<JSONObject, Void, SimpleArrayMap<String, Object>> {
@@ -247,8 +249,6 @@ public class MainFragment extends Fragment {
                     mIntent.setAction(Constants.IntentParams.RecData);
                     mIntent.putExtra(Constants.IntentParams.URL, url);
                     mListener.StartServiceTask(mIntent);
-
-
                     break;
 
                 case Constants.IntentParams.RecData:
@@ -297,6 +297,15 @@ public class MainFragment extends Fragment {
         public void onClick(View view) {
             Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse((String) code.getText()));
             startActivity(mIntent);
+        }
+    };
+
+    View.OnClickListener onCloseClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            adapter.setList(null);
+            adapter.notifyDataSetChanged();
+            list.setVisibility(View.GONE);
         }
     };
 

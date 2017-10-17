@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         getAppInfo();
 
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
