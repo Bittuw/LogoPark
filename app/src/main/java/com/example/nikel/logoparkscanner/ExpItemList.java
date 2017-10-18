@@ -29,6 +29,7 @@ import java.util.Arrays;
 
 public class ExpItemList extends BaseExpandableListAdapter implements ExpandableListView.OnGroupClickListener {
 
+    private String LOG_TAG = "ExpItemList";
     private SimpleArrayMap<String, Object> mGroups;
     private SimpleArrayMap<String, Object> mFilteredGroups;
     private SimpleArrayMap<String, String> temp, translate;
@@ -40,12 +41,14 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
     public int currentGroupExpand;
 
     public ExpItemList(ExpandableListView v, Activity mmActivity){
+        Log.d(LOG_TAG, "ExpItemList");
         mActivity = mmActivity;
         v.setOnGroupClickListener(this);
         getResources(mActivity);
     }
 
     public void setList (SimpleArrayMap<String, Object> temp){
+        Log.d(LOG_TAG, "setList");
         if (temp != null) {
             mGroups = temp;
             executer = new FilterMap();

@@ -88,68 +88,73 @@ public class MainService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(LOG_TAG, "onStartCommand " + intent.getAction());
+        if (intent != null) {
 
-        String action = intent.getAction();
+            Log.d(LOG_TAG, "onStartCommand " + intent.getAction());
 
-        switch (action) {
-            case Constants.IntentParams.Auth:
-                Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
-                getData(action, intent.getStringExtra(Constants.IntentParams.URL));
-                break;
-            case Constants.IntentParams.RecData:
-                Log.d(LOG_TAG, this.getClass().getName() + ": " + action + " " + intent.getStringExtra(Constants.IntentParams.URL));
-                getData(action, intent.getStringExtra(Constants.IntentParams.URL));
-                break;
-            case Constants.IntentParams.Picture:
-                getPicture(action, intent.getStringExtra(Constants.IntentParams.URL));
-                break;
-            case Constants.IntentParams.SendData:
-                Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
-                sendData(action, intent.getStringExtra(Constants.IntentParams.URL));
-                break;
-            case Constants.IntentParams.StartRecCas:
-                if (rHanlder == null) {
-                    rThread = new HandlerThread("ReceiveThread");
-                    rThread.start();
-                    rHanlder = new Handler(rThread.getLooper());
+            String action = intent.getAction();
 
-                    IntentFilter mIntentFilter = new IntentFilter();
-                    mIntentFilter.addAction(Constants.IntentParams.UROVO);
-                    registerReceiver(mBroadcastReceiver, mIntentFilter, null, rHanlder);
-                }
-                else {
-                    Log.e(LOG_TAG, action + ": Service is already working");
-                }
-                break;
-            case Constants.IntentParams.StopService:
-                stopSelf();
-                break;
-            case Constants.IntentParams.foregroundService:
-                foregroundService(intent.getBooleanExtra(Constants.IntentParams.foregroundService, true));
-                break;
-            case Constants.IntentParams.isOnlineTimer:
-                Timer(intent.getBooleanExtra(Constants.IntentParams.isOnlineTimer, true));
-                break;
-            default:
-                Log.e(LOG_TAG, "onStartCommand " + intent.getAction());
-                break;
+            switch (action) {
+                case Constants.IntentParams.Auth:
+                    Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
+                    getData(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
+                    break;
+                case Constants.IntentParams.RecData:
+                    Log.d(LOG_TAG, this.getClass().getName() + ": " + action + " " + intent.getStringExtra(Constants.IntentParams.URL));
+                    getData(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
+                    break;
+                case Constants.IntentParams.Picture:
+                    getPicture(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
+                    break;
+                case Constants.IntentParams.SendData:
+                    Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
+                    sendData(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
+                    break;
+                case Constants.IntentParams.StartRecCas:
+                    if (rHanlder == null) {
+                        rThread = new HandlerThread("ReceiveThread");
+                        rThread.start();
+                        rHanlder = new Handler(rThread.getLooper());
+
+                        IntentFilter mIntentFilter = new IntentFilter();
+                        mIntentFilter.addAction(Constants.IntentParams.UROVO);
+                        registerReceiver(mBroadcastReceiver, mIntentFilter, null, rHanlder);
+                    } else {
+                        Log.e(LOG_TAG, action + ": Service is already working");
+                    }
+                    break;
+                case Constants.IntentParams.StopService:
+                    stopSelf();
+                    break;
+                case Constants.IntentParams.foregroundService:
+                    foregroundService(intent.getBooleanExtra(Constants.IntentParams.foregroundService, false));
+                    break;
+                case Constants.IntentParams.isOnlineTimer:
+                    Timer(intent.getBooleanExtra(Constants.IntentParams.isOnlineTimer, true));
+                    break;
+                default:
+                    Log.e(LOG_TAG, "onStartCommand " + intent.getAction());
+                    break;
+            }
         }
-        return START_REDELIVER_INTENT;
+        return START_STICKY;
     }
 
-    private void foregroundService(final boolean type) {
+    private void foregroundService(boolean type) {
 
         if (type) {
             startForeground(NOTIFICATION_ID, new Notification());
+
+            Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса как открытый", Toast.LENGTH_SHORT);
+            mToast.setGravity(Gravity.BOTTOM, 0, 0);
+            mToast.show();
         }
         else {
             stopForeground(false);
+            Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса как срытый", Toast.LENGTH_SHORT);
+            mToast.setGravity(Gravity.BOTTOM, 0, 0);
+            mToast.show();
         }
-
-        Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса как срытый", Toast.LENGTH_SHORT);
-        mToast.setGravity(Gravity.BOTTOM, 0, 0);
-        mToast.show();
     }
 
     private void Timer(final boolean action) {
@@ -169,21 +174,24 @@ public class MainService extends Service {
         return null;
     }
 
-    private void getData(String action, String path) {
+    private void getData(String action, String path, int startID) {
         GET.setPath(path);
         GET.setAction(action);
+        GET.setStartID(startID);
         getHandler.post(GET);
     }
 
-    private void sendData(String action, String path) {
+    private void sendData(String action, String path, int startID) {
         POST.setAction(action);
         POST.setPath(path);
+        POST.setStartID(startID);
         postHandler.post(POST);
     }
 
-    private void getPicture(String action, String path) {
+    private void getPicture(String action, String path, int startID) {
         GET.setPath(path);
         GET.setAction(action);
+        GET.setStartID(startID);
         getHandler.post(GET);
     }
 
@@ -213,6 +221,7 @@ public class MainService extends Service {
 
     private class InternetThread implements Runnable {
         String path, action;
+        int startID;
 
         public InternetThread() {
 
@@ -297,6 +306,7 @@ public class MainService extends Service {
                         Log.e(LOG_TAG, this.getClass().getName());
                         break;
                 }
+                stopSelf(startID);
             }
             catch (IOException ex) {
                 Log.e(LOG_TAG, ex.getMessage());
@@ -321,6 +331,14 @@ public class MainService extends Service {
         public String getAction() {
             return this.action;
         }
+
+        public void setStartID(int ID) {
+            this.startID = ID;
+        }
+
+        public int getStartID() {
+            return this.startID;
+        }
     }
 
 
@@ -344,21 +362,31 @@ public class MainService extends Service {
             code = new String(barcode,0, barocodelen);
             type = BarcodeTypes.decodeType(temp).name();
 
-            Intent mIntent = new Intent();
-            mIntent.setAction(Constants.IntentParams.QR);
-            mIntent.putExtra("type", type);
-            mIntent.putExtra("code", code);
-            //mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            //LocalBroadcastManager.getInstance(context).sendBroadcast(message);
-            sendBroadcast(mIntent);
             //context.startActivity(mIntent);
-            /*if (isAliveActivity) {*/
-                /*sendBroadcast(mIntent);*/
-           /* }
+            if (isAliveActivity) {
+                Intent mIntent = new Intent();
+                mIntent.setAction(Constants.IntentParams.QR);
+                mIntent.putExtra("type", type);
+                mIntent.putExtra("code", code);
+                //mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                //LocalBroadcastManager.getInstance(context).sendBroadcast(message);
+                sendBroadcast(mIntent);
+            }
             else {
+                Intent mIntent = new Intent(context, MainActivity.class);
+                mIntent.setAction(Constants.IntentParams.QR);
+                mIntent.putExtra("type", type);
+                mIntent.putExtra("code", code);
                 mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 context.startActivity(mIntent);
-            }*/
+            }
+        }
+    };
+
+    private BroadcastReceiver mBroadcastreceiverReboot = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
         }
     };
 }

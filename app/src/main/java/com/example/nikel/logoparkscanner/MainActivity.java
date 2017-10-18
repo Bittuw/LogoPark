@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -82,23 +83,52 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        menu.add(0, 1, 0, "<Empty yet>");
+        menu.add(0, 1, 0, "foregroundService").setCheckable(true);
+        menu.findItem(1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.isChecked()) {
+                    item.setChecked(false);
+
+                    Intent mIntent = new Intent(getApplicationContext(), MainService.class);
+                    mIntent.setAction(Constants.IntentParams.foregroundService);
+                    mIntent.putExtra(Constants.IntentParams.foregroundService, false);
+                    StartServiceTask(mIntent);
+
+                }
+                else {
+                    item.setChecked(true);
+
+                    Intent mIntent = new Intent(getApplicationContext(), MainService.class);
+                    mIntent.setAction(Constants.IntentParams.foregroundService);
+                    mIntent.putExtra(Constants.IntentParams.foregroundService, true);
+                    StartServiceTask(mIntent);
+                }
+                return true;
+            }
+        });
+
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == 1) {
+            item.setChecked(true);
+            /*Intent mIntent = new Intent(this, MainService.class);
+            mIntent.setAction(Constants.IntentParams.foregroundService);
+            StartServiceTask(mIntent);*/
             return true;
         }
-
-        return super.onOptionsItemSelected(item);
+        //return super.onOptionsItemSelected(item);
+        return true;
     }
 
     @Override
     protected void onResume(){
-        Log.d(LOG_TAG, "onResume " + getIntent().getAction());
+        Log.d(LOG_TAG, "onResume " + getIntent().getAction() + " " + getIntent().getFlags());
 
         if (!isRestarting)
             switch (getIntent().getAction()) {
@@ -106,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
                     sendBroadcast(getIntent());
                     break;
                 case Constants.IntentParams.Auth:
-                    sendBroadcast(getIntent());
+                    sendBroadcast(getIntent().setFlags(0));
                     break;
                 case Constants.IntentParams.RecData:
                     sendBroadcast(getIntent());
@@ -305,11 +335,11 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
             mBundle.putString(Constants.Code, getIntent().getStringExtra("code"));
             makeMainFragment(mBundle);
 
-            Intent mIntent = new Intent(this, MainService.class);
-            mIntent.setAction(Constants.IntentParams.StartRecCas);
+            //Intent mIntent = new Intent(this, MainService.class);
+            //mIntent.setAction(Constants.IntentParams.StartRecCas);
             /*mIntent.putExtra(Constants.IntentParams.foregroundService, true);*/
 
-            StartServiceTask(mIntent);
+            //StartServiceTask(mIntent);
         }
     }
 

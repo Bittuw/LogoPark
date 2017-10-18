@@ -55,6 +55,7 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onCreate");
         setRetainInstance(true);
         mActivity = getActivity();
 
@@ -66,11 +67,18 @@ public class MainFragment extends Fragment {
         mActivity.registerReceiver(mBroadcastReceiver, mIntentFilter);
 
         mListener = (AuthFragment.NoticeListener) mActivity;
+
+        Intent mIntent = new Intent(mActivity, MainService.class);
+        mIntent.setAction(Constants.IntentParams.StartRecCas);
+        mIntent.putExtra(Constants.IntentParams.foregroundService, true);
+        mListener.StartServiceTask(mIntent);
+
         super.onCreate(savedInstanceState);
     }
 
     @Override
     public void setArguments(Bundle args) {
+        Log.d(LOG_TAG, "setArguments");
         user = args.getString(Constants.User);
         super.setArguments(args);
     }
@@ -78,6 +86,7 @@ public class MainFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onCreateView");
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         type = v.findViewById(R.id.TypeID);
         code = v.findViewById(R.id.CodeID);
@@ -93,13 +102,17 @@ public class MainFragment extends Fragment {
         super.onStart();
     }
 
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.d(LOG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
     }
 
+
+
     private void prepareListView() {
+        Log.d(LOG_TAG, "prepareListView");
         adapter = new ExpItemList(list, mActivity);
         View footer = mActivity.getLayoutInflater().inflate(R.layout.footer_view, null, false);
         View header = mActivity.getLayoutInflater().inflate(R.layout.header_view, null, false);
@@ -137,7 +150,7 @@ public class MainFragment extends Fragment {
 
         @Override
         protected void onPostExecute(SimpleArrayMap<String, Object> temp) { // TODO загрузить картинку
-
+            Log.d(LOG_TAG, "onPostExecute");
             if (list.getAdapter() != null) {
                 adapter.setList(temp);
                 //adapter.notifyDataSetChanged();
@@ -253,6 +266,7 @@ public class MainFragment extends Fragment {
                     break;
 
                 case Constants.IntentParams.RecData:
+                    Log.d(LOG_TAG, intent.getAction());
                     try {
                         json = new JSONObject(intent.getStringExtra(Constants.IntentParams.GetData));
                     } catch (JSONException e) {
@@ -291,6 +305,7 @@ public class MainFragment extends Fragment {
     View.OnClickListener onActionClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            Log.d(LOG_TAG, "onClickAction");
             Toast mToast;
             switch (actionString) {
                 case "Пропустить":
@@ -328,6 +343,7 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onDestroy() {
+        Log.d(LOG_TAG, "onDestroy");
         mActivity.unregisterReceiver(mBroadcastReceiver);
         super.onDestroy();
     }
