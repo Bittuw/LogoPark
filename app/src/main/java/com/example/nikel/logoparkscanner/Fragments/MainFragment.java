@@ -190,7 +190,7 @@ public class MainFragment extends Fragment {
 
             switch ("5"/*((SimpleArrayMap<String, String>) temp.get("status")).get("id")*/) {
                 case "5":
-                    actionString = "5";
+                    actionString = "Пропустить";
                     action.setVisibility(View.VISIBLE);
                     action.setText("Пропустить");
                     break;
@@ -200,7 +200,7 @@ public class MainFragment extends Fragment {
                     break;
 
                 case "3":
-                    actionString = "3";
+                    actionString = "Выпустить";
                     action.setVisibility(View.VISIBLE);
                     action.setText("Выпустить");
                     break;
