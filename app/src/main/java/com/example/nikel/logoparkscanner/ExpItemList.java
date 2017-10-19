@@ -311,7 +311,7 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
     @Override
     public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
         if (currentGroupExpand != i) {
-            boolean temp = expandableListView.collapseGroup(currentGroupExpand);
+            expandableListView.collapseGroup(currentGroupExpand);
             expandableListView.expandGroup(i);
             currentGroupExpand = i;
         }

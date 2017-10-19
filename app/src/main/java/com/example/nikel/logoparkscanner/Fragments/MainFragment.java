@@ -349,7 +349,7 @@ public class MainFragment extends Fragment {
 
             Intent mIntent = new Intent(mActivity, MainService.class);
             mIntent.setAction(Constants.IntentParams.SendData);
-            mIntent.putExtra(Constants.IntentParams.URL, code.getText());
+            mIntent.putExtra(Constants.IntentParams.URL, url);
             //mListener.StartServiceTask(mIntent);
         }
     };

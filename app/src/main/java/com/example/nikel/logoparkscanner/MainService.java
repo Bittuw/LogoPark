@@ -267,7 +267,7 @@ public class MainService extends Service {
                             Log.e(LOG_TAG, e.getMessage());
                         }
                         break;
-                    case "POST": // TODO сделать POST запрос
+                    case Constants.IntentParams.SendData: // TODO сделать POST запрос
                         url = new URL(path);
                         connection = (HttpsURLConnection)url.openConnection();
                         connection.setRequestMethod("POST");
@@ -306,7 +306,7 @@ public class MainService extends Service {
                         mIntent.putExtra(Constants.IntentParams.Picture, mBitmap);
                         sendBroadcast(mIntent);
                         break;
-                    case "POST":
+                    case Constants.IntentParams.SendData:
                         mIntent = new Intent(Constants.IntentParams.Success);
                         mIntent.putExtra(Constants.IntentParams.Success, success);
                         sendBroadcast(mIntent);
