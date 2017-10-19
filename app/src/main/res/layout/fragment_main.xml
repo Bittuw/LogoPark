@@ -6,11 +6,12 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_width="304dp"
+        android:layout_width="0dp"
         android:layout_height="331dp"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
+        tools:layout_editor_absoluteY="8dp"
+        tools:ignore="MissingConstraints">
 
         <TextView
             android:id="@+id/textView"
@@ -18,8 +19,7 @@
             android:layout_height="wrap_content"
             android:text="Главное окно"
             android:textAlignment="center"
-            android:textAppearance="@android:style/TextAppearance.Holo.Medium"
-            android:textSize="24sp" />
+            android:textAppearance="@android:style/TextAppearance.Holo.Large" />
 
         <include
             layout="@layout/type_code"

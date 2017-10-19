@@ -65,7 +65,7 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
     }
 
     private void getResources(Activity mActivity) {
-
+        Log.d(LOG_TAG, "getResource");
         String[] temp =  mActivity.getResources().getStringArray(R.array.toShowOnList);
         toShowOnList = new ArrayList<>(Arrays.asList(temp));
 
@@ -132,36 +132,14 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
             mFilteredGroups = map;
             notifyDataSetChanged();
             MainFragment.list.setAdapter(MainFragment.adapter);
+            executer.cancel(true);
+            try {
+                executer.finalize();
+            } catch (Throwable e) {
+                Log.d(LOG_TAG, e.getMessage());
+            }
         }
     }
-   /* private SimpleArrayMap<String, Object> FilterArray(SimpleArrayMap<String, Object> temp) {
-        SimpleArrayMap<String, Object> map = new SimpleArrayMap<>();
-
-        for (int loop = 0; loop < temp.size(); loop++) {
-            String key = temp.keyAt(loop);
-            Object mObject = temp.get(key);
-
-            if (mObject instanceof SimpleArrayMap && toShowOnList.contains(key) && !doNotToShowOnList.contains(key)) {
-                if (translate.containsKey(key)) {
-                    map.put(translate.get(key), FilterArray((SimpleArrayMap<String, Object>) mObject));
-                    continue;
-                }
-                else {
-                    map.put(key, FilterArray((SimpleArrayMap<String, Object>) mObject));
-                    continue;
-                }
-            }
-
-            if(mObject instanceof String && toShowOnList.contains(key) && !doNotToShowOnList.contains(key)) {
-                if (translate.containsKey(key))
-                    map.put(translate.get(key), mObject);
-                else {
-                    map.put(key, mObject);
-                }
-            }
-        }
-        return map;
-    }*/
 
     private SimpleArrayMap<String, String> makeTranslateMap(String[] keys, String[] values) {
         SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
@@ -336,8 +314,7 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
             textChildID = view.findViewById(R.id.textChildID);
             try {
                 mActivity.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.IntentParams.Picture));
-            }  catch (Exception e)
-            {
+            }  catch (Exception e) {
                 Log.e(LOG_TAG, e.getMessage());
                 e.printStackTrace();
             }

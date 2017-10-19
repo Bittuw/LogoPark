@@ -37,7 +37,7 @@ public class MainService extends Service {
 
     private final String MESSAGE_TAG = "urovo.rcv.message";
     private Timer timer;
-    private boolean isAliveActivity, isActivityStop, isForegroundService;
+    private boolean isAliveActivity = false, isActivityStop = true, isForegroundService;
 
     private HandlerThread rThread, getThread, postThread;
     private Handler rHanlder, getHandler, postHandler;
@@ -361,7 +361,7 @@ public class MainService extends Service {
 
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() { // TODO сделать запуск активити или передачу по broadcast
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, Intent intent) {
             Log.d(LOG_TAG, "onReceive " + intent.getAction());
             byte[] barcode = intent.getByteArrayExtra("barocode");
             int barocodelen = intent.getIntExtra("length", 0);
@@ -371,6 +371,7 @@ public class MainService extends Service {
 
             //context.startActivity(mIntent);
             if (isAliveActivity && !isActivityStop) {
+                Log.d(LOG_TAG, "onReceive " + "send Broadcast");
                 Intent mIntent = new Intent();
                 mIntent.setAction(Constants.IntentParams.QR);
                 mIntent.putExtra("type", type);
@@ -380,8 +381,9 @@ public class MainService extends Service {
                 sendBroadcast(mIntent);
             }
             if (isAliveActivity && isActivityStop) {
-                Intent mIntent = new Intent();
-                Intent mActivity = new Intent(context, MainActivity.class);
+                Log.d(LOG_TAG, "onReceive " + "Stopped Activity");
+                final Intent mIntent = new Intent();
+                final Intent mActivity = new Intent(context, MainActivity.class);
                 mIntent.setAction(Constants.IntentParams.QR);
                 mActivity.setAction(Intent.ACTION_MAIN);
                 mIntent.putExtra("type", type);
@@ -389,8 +391,10 @@ public class MainService extends Service {
                 mActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 context.startActivity(mActivity);
                 sendBroadcast(mIntent);
+
             }
             if(!isAliveActivity && isActivityStop) {
+                Log.d(LOG_TAG, "onReceive " + "Dead Activity");
                 Intent mIntent = new Intent(context, MainActivity.class);
                 mIntent.setAction(Constants.IntentParams.QR);
                 mIntent.putExtra("type", type);

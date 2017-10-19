@@ -364,10 +364,10 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         if (!isReadInstruct && !isAuthorized && manual_dlg == null ) {
             makeManualDialog();
         }
-        if(isReadInstruct && !isAuthorized) {
+        if(isReadInstruct && !isAuthorized && authFragment == null) {
             makeAuthFragment();
         }
-        if (isReadInstruct && isAuthorized) {
+        if (isReadInstruct && isAuthorized && mainFragment == null) {
             Bundle mBundle = new Bundle();
             mBundle.putString(Constants.User, user);
             mBundle.putString(Constants.Type, getIntent().getStringExtra("type"));

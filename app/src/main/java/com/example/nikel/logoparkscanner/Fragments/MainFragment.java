@@ -52,6 +52,7 @@ public class MainFragment extends Fragment {
     private JSONObject json;
     public static ProgressBar progressBar;
     public static  ExpItemList adapter;
+    private JSONAsync executer;
 
     private String pattern = "[0-9]+";
 
@@ -187,7 +188,7 @@ public class MainFragment extends Fragment {
                 //list.setAdapter(adapter);
             }
 
-            switch (((SimpleArrayMap<String, String>) temp.get("status")).get("id")) {
+            switch ("5"/*((SimpleArrayMap<String, String>) temp.get("status")).get("id")*/) {
                 case "5":
                     actionString = "5";
                     action.setVisibility(View.VISIBLE);
@@ -212,6 +213,12 @@ public class MainFragment extends Fragment {
                     mToast.setGravity(Gravity.BOTTOM, 0, 0);
                     mToast.show();
                     break;
+            }
+            executer.cancel(true);
+            try {
+                executer.finalize();
+            } catch (Throwable e) {
+                Log.d(LOG_TAG, e.getMessage());
             }
         }
 
@@ -271,28 +278,37 @@ public class MainFragment extends Fragment {
         public void onReceive(Context context, final Intent intent) {
             switch (intent.getAction()) {
                 case Constants.IntentParams.QR:
-
                     Log.d(LOG_TAG, intent.getAction());
-                    progressBar.setVisibility(View.VISIBLE);
-                    list.setVisibility(View.INVISIBLE);
-                    type.setText(intent.getStringExtra("type"));
-                    Title.setText("Пропуск №" + getNumber(intent.getStringExtra("code")));
+                    if (!AuthFragment.validateCode(intent.getStringExtra("code"))) {
 
-                    if (!intent.getStringExtra("code").contains("https")) {
-                        code.setText(intent.getStringExtra("code").replace("http", "https"));
+                        progressBar.setVisibility(View.VISIBLE);
+                        list.setVisibility(View.INVISIBLE);
+                        type.setText(intent.getStringExtra("type"));
+                        Title.setText("Пропуск №" + getNumber(intent.getStringExtra("code")));
+
+                        if (!intent.getStringExtra("code").contains("https")) {
+                            code.setText(intent.getStringExtra("code").replace("http", "https"));
+                        }
+                        else {
+                            code.setText(intent.getStringExtra("code"));
+                        }
+
+
+
+                        url = code.getText() + "?" + user;
+
+                        Intent mIntent = new Intent(mActivity, MainService.class);
+                        mIntent.setAction(Constants.IntentParams.RecData);
+                        mIntent.putExtra(Constants.IntentParams.URL, url);
+                        mListener.StartServiceTask(mIntent);
                     }
                     else {
-                        code.setText(intent.getStringExtra("code"));
+                        Log.e(LOG_TAG, "Not valid URL for read");
+
+                        Toast mToast = Toast.makeText(mActivity, "Нечитаемый QR", Toast.LENGTH_SHORT);
+                        mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                        mToast.show();
                     }
-
-
-
-                    url = code.getText() + "?" + user;
-
-                    Intent mIntent = new Intent(mActivity, MainService.class);
-                    mIntent.setAction(Constants.IntentParams.RecData);
-                    mIntent.putExtra(Constants.IntentParams.URL, url);
-                    mListener.StartServiceTask(mIntent);
                     break;
 
                 case Constants.IntentParams.RecData:
@@ -305,7 +321,8 @@ public class MainFragment extends Fragment {
                         mToast.setGravity(Gravity.BOTTOM, 0, 0);
                         mToast.show();
                     }
-                    new JSONAsync().execute(json);
+                    executer = new JSONAsync();
+                    executer.execute(json);
 
                     break;
                 case Constants.IntentParams.isOnlineTimer:
@@ -379,7 +396,7 @@ public class MainFragment extends Fragment {
             code.setText(null);
             adapter.setList(null);
             adapter.notifyDataSetChanged();
-            list.setVisibility(View.GONE);
+            list.setVisibility(View.INVISIBLE);
         }
     };
 

@@ -68,7 +68,7 @@ public class AuthFragment extends Fragment{
         return v;
     }
 
-    private static boolean validateCode(final String code) {
+    public static boolean validateCode(final String code) {
         return code.startsWith("user:");
     }
 
