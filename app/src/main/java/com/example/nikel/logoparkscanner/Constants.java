@@ -47,6 +47,7 @@ public class Constants {
         public static final String foregroundService = "foregroundService";
         public static final String isOnlineTimer = "isOnlineTimer";
         public static final String isActivityAlive = "isActivityAlive";
+        public static final String isActivityStop = "isActivityStop";
         public static final String Picture = "picture";
         public static final String UROVO = "urovo.rcv.message";
         public static final String Success = "Success";

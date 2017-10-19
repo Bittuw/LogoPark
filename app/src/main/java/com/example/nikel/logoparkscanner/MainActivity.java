@@ -81,6 +81,11 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
                     break;
             }
 
+        Intent mIntent = new Intent(this, MainService.class);
+        mIntent.setAction(Constants.IntentParams.isActivityStop);
+        mIntent.putExtra(Constants.IntentParams.isActivityStop, false);
+        StartServiceTask(mIntent);
+
         super.onStart();
     }
 
@@ -131,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     protected void onResume(){
         Log.d(LOG_TAG, "onResume " + getIntent().getAction() + " " + getIntent().getFlags());
 
-        if (!isRestarting)
+        if (!getIntent().getAction().equals(Intent.ACTION_MAIN)  && !isRestarting)
             switch (getIntent().getAction()) {
                 case Constants.IntentParams.QR:
                     Intent mIntent = new Intent(Constants.IntentParams.QR);
@@ -162,6 +167,12 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     @Override
     public void onStop() {
         Log.d(LOG_TAG, "onStop");
+
+        Intent mIntent = new Intent(this, MainService.class);
+        mIntent.setAction(Constants.IntentParams.isActivityStop);
+        mIntent.putExtra(Constants.IntentParams.isActivityStop, true);
+        StartServiceTask(mIntent);
+
         super.onStop();
     }
 
@@ -350,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     }
 
     private void checkReadAndAuth() {
-        if (!isReadInstruct && !isAuthorized) {
+        if (!isReadInstruct && !isAuthorized && manual_dlg == null ) {
             makeManualDialog();
         }
         if(isReadInstruct && !isAuthorized) {

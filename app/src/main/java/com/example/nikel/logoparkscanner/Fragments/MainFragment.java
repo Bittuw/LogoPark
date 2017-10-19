@@ -60,15 +60,8 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreate");
-        //setRetainInstance(true);
+        setRetainInstance(true);
         mActivity = getActivity();
-
-        IntentFilter mIntentFilter = new IntentFilter();
-        mIntentFilter.addAction(Constants.IntentParams.RecData);
-        mIntentFilter.addAction(Constants.IntentParams.QR);
-        mIntentFilter.addAction(Constants.IntentParams.isOnlineTimer);
-        mIntentFilter.addAction(Constants.IntentParams.Success);
-        mActivity.registerReceiver(mBroadcastReceiver, mIntentFilter);
 
         mListener = (AuthFragment.NoticeListener) mActivity;
 
@@ -103,8 +96,25 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onStart() {
+        Log.d(LOG_TAG, "onStart");
+
+        IntentFilter mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(Constants.IntentParams.RecData);
+        mIntentFilter.addAction(Constants.IntentParams.QR);
+        mIntentFilter.addAction(Constants.IntentParams.isOnlineTimer);
+        mIntentFilter.addAction(Constants.IntentParams.Success);
+        mActivity.registerReceiver(mBroadcastReceiver, mIntentFilter);
+
         super.onStart();
     }
+
+    @Override
+    public void onStop() {
+        Log.d(LOG_TAG, "onStop");
+        //mActivity.unregisterReceiver(mBroadcastReceiver);
+        super.onStop();
+    }
+
 
 
     @Override
@@ -350,7 +360,7 @@ public class MainFragment extends Fragment {
             Intent mIntent = new Intent(mActivity, MainService.class);
             mIntent.setAction(Constants.IntentParams.SendData);
             mIntent.putExtra(Constants.IntentParams.URL, url);
-            //mListener.StartServiceTask(mIntent);
+            mListener.StartServiceTask(mIntent);
         }
     };
 

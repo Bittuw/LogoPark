@@ -11,20 +11,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
-
-import com.example.nikel.logoparkscanner.Fragments.MainFragment;
-
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,7 +37,7 @@ public class MainService extends Service {
 
     private final String MESSAGE_TAG = "urovo.rcv.message";
     private Timer timer;
-    private boolean isAliveActivity, isForegroundService;
+    private boolean isAliveActivity, isActivityStop, isForegroundService;
 
     private HandlerThread rThread, getThread, postThread;
     private Handler rHanlder, getHandler, postHandler;
@@ -137,6 +130,9 @@ public class MainService extends Service {
                         break;
                     case Constants.IntentParams.isActivityAlive:
                         isAliveActivity = intent.getBooleanExtra(Constants.IntentParams.isActivityAlive, false);
+                        break;
+                    case Constants.IntentParams.isActivityStop:
+                        isActivityStop = intent.getBooleanExtra(Constants.IntentParams.isActivityStop, false);
                         break;
                     default:
                         Log.e(LOG_TAG, "onStartCommand " + intent.getAction());
@@ -284,7 +280,6 @@ public class MainService extends Service {
                             success = true;
                         else
                             success = false;
-
                         break;
                     default:
                         Log.e(LOG_TAG, getClass().getName() + " error download");
@@ -375,7 +370,7 @@ public class MainService extends Service {
             type = BarcodeTypes.decodeType(temp).name();
 
             //context.startActivity(mIntent);
-            if (isAliveActivity) {
+            if (isAliveActivity && !isActivityStop) {
                 Intent mIntent = new Intent();
                 mIntent.setAction(Constants.IntentParams.QR);
                 mIntent.putExtra("type", type);
@@ -384,7 +379,18 @@ public class MainService extends Service {
                 //LocalBroadcastManager.getInstance(context).sendBroadcast(message);
                 sendBroadcast(mIntent);
             }
-            else {
+            if (isAliveActivity && isActivityStop) {
+                Intent mIntent = new Intent();
+                Intent mActivity = new Intent(context, MainActivity.class);
+                mIntent.setAction(Constants.IntentParams.QR);
+                mActivity.setAction(Intent.ACTION_MAIN);
+                mIntent.putExtra("type", type);
+                mIntent.putExtra("code", code);
+                mActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                context.startActivity(mActivity);
+                sendBroadcast(mIntent);
+            }
+            if(!isAliveActivity && isActivityStop) {
                 Intent mIntent = new Intent(context, MainActivity.class);
                 mIntent.setAction(Constants.IntentParams.QR);
                 mIntent.putExtra("type", type);
