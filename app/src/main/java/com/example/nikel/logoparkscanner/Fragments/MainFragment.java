@@ -188,7 +188,7 @@ public class MainFragment extends Fragment {
                 //list.setAdapter(adapter);
             }
 
-            switch ("5"/*((SimpleArrayMap<String, String>) temp.get("status")).get("id")*/) {
+            switch (((SimpleArrayMap<String, String>) temp.get("status")).get("id")) {
                 case "5":
                     actionString = "Пропустить";
                     action.setVisibility(View.VISIBLE);

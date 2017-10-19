@@ -13,6 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textSize="12sp"
             android:visibility="gone" />
 
         <Button
@@ -20,14 +21,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Подробнее" />
+            android:text="Подробнее"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/Close"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text=" Закрыть" />
+            android:text=" Закрыть"
+            android:textSize="12sp" />
 
     </LinearLayout>
 </LinearLayout>
