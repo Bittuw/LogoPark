@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     public boolean onCreateOptionsMenu(final Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        menu.add(0, 1, 0, "Сервис всегда работает").setCheckable(true);
+        menu.add(0, 1, 0, "Сервис в фоновом режиме").setCheckable(true);
         menu.findItem(1).setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         menu.findItem(1).setChecked(isForegroundService);
         menu.findItem(1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {

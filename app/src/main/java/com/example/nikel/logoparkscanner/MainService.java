@@ -1,6 +1,7 @@
 package com.example.nikel.logoparkscanner;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,6 +16,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
@@ -149,13 +151,15 @@ public class MainService extends Service {
             if (type) {
                 startForeground(NOTIFICATION_ID, new Notification());
                 isForegroundService = type;
-                Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса как открытый", Toast.LENGTH_SHORT);
+                Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса в фоновом режиме", Toast.LENGTH_SHORT);
                 mToast.setGravity(Gravity.BOTTOM, 0, 0);
                 mToast.show();
             } else {
                 stopForeground(false);
+                NotificationManager manager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
+                manager.cancelAll();
                 isForegroundService = type;
-                Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса как срытый", Toast.LENGTH_SHORT);
+                Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса как часть приложения", Toast.LENGTH_SHORT);
                 mToast.setGravity(Gravity.BOTTOM, 0, 0);
                 mToast.show();
             }

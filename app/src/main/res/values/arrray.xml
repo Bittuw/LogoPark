@@ -27,6 +27,7 @@
         <item>secondname</item>
 
         <item>company</item>
+        <item>location</item>
     </string-array>
 
     <string-array name="doNotToShowOnList">
@@ -56,6 +57,7 @@
         <item>phone_local</item>
 
         <item>company</item>
+        <item>location</item>
     </string-array>
 
     <string-array name="translate_value">
@@ -76,6 +78,7 @@
         <item>Локальный телефон</item>
 
         <item>Компания</item>
+        <item>location</item>
     </string-array>
 
 
