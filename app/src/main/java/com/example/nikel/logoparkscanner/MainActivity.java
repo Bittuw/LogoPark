@@ -1,21 +1,14 @@
 package com.example.nikel.logoparkscanner;
 
-import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,12 +17,8 @@ import android.widget.Toast;
 import com.example.nikel.logoparkscanner.Fragments.AuthFragment;
 import com.example.nikel.logoparkscanner.Fragments.DiaFragment;
 import com.example.nikel.logoparkscanner.Fragments.MainFragment;
-import com.example.nikel.logoparkscanner.Fragments.WebFragment;
 
 public class MainActivity extends AppCompatActivity implements AuthFragment.NoticeListener {
-
-
-    private WebFragment webFragment; // TODO Фрагмен веб формы
 
     private AuthFragment authFragment; // TODO авторизация и мануал
     private MainFragment mainFragment;
