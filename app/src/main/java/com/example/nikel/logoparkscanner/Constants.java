@@ -13,13 +13,13 @@ import org.json.JSONObject;
 public class Constants {
 
     public static final boolean DebugMode = false;
-    public static final String MainFileInfo = "MainFileInfo"; // TODO файл хранения параметров приложения
-    public static final String IS_FIRST_LAUNCH = "IsFirstLaunch"; // TODO название поля информации о первом запуске
-    public static final String IS_AUTHARIZED = "IsAutharized"; // TODO название поля  информации о состоянии авторизации
+    public static final String MainFileInfo = "MainFileInfo";
+    public static final String IS_FIRST_LAUNCH = "IsFirstLaunch";
+    public static final String IS_AUTHARIZED = "IsAutharized";
     public static final String YES = "Y";
     public static final String NO = "N";
 
-    public static final String TypeOfDialog = "TypeOfDialog"; // TODO  строка типа диалога
+    public static final String TypeOfDialog = "TypeOfDialog";
     public static final int ManualDialog = 1; //
     public static final int ConfirmDialog = 2;
 
@@ -46,20 +46,10 @@ public class Constants {
         public static final String QR = "qr";
         public static final String foregroundService = "foregroundService";
         public static final String isOnlineTimer = "isOnlineTimer";
+        public static final String isActivityAlive = "isActivityAlive";
         public static final String Picture = "picture";
         public static final String UROVO = "urovo.rcv.message";
         public static final String Success = "Success";
     }
 
-    public static final String JSON =
-            "{\"items\":[{\"status\":\"blabla\", \"non\":\"non\"}]}";
-
-    public static JSONObject getJSON() {
-        try {
-            return new JSONObject(JSON);
-        } catch (JSONException e) {
-            Log.e("STATIC METHOD", e.getMessage());
-        }
-        return null;
-    }
 }

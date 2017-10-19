@@ -47,9 +47,6 @@ public class AuthFragment extends Fragment{
 
         mActivity = getActivity();
         mListener = (NoticeListener) mActivity;
-
-        mActivity.registerReceiver(mBroadcasrReceiverQR, new IntentFilter(Constants.IntentParams.QR));
-        mActivity.registerReceiver(mBroadcastReceiverAuth, new IntentFilter(Constants.IntentParams.Auth));
     }
 
     @Override
@@ -86,9 +83,11 @@ public class AuthFragment extends Fragment{
         public void onClick(View view) {
             createDialog();
 
-            Intent mIntent = new Intent(mActivity, MainService.class);
+            mActivity.registerReceiver(mBroadcasrReceiverQR, new IntentFilter(Constants.IntentParams.QR));
+            mActivity.registerReceiver(mBroadcastReceiverAuth, new IntentFilter(Constants.IntentParams.Auth));
+            /*Intent mIntent = new Intent(mActivity, MainService.class);
             mIntent.setAction(Constants.IntentParams.StartRecCas);
-            mListener.StartServiceTask(mIntent);
+            mListener.StartServiceTask(mIntent);*/
         }
     };
 

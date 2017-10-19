@@ -17,11 +17,14 @@
         <item>govnumber</item>
         <item>cartype</item>
         <item>visit</item>
+        <item>document</item>
 
         <item>number</item>
 
         <item>created</item>
         <item>post</item>
+        <item>surname</item>
+        <item>secondname</item>
 
         <item>company</item>
     </string-array>
@@ -44,11 +47,13 @@
         <item>govnumber</item>
         <item>cartype</item>
         <item>visit</item>
+        <item>document</item>
 
         <item>number</item>
 
         <item>created</item>
         <item>post</item>
+        <item>phone_local</item>
 
         <item>company</item>
     </string-array>
@@ -57,19 +62,20 @@
         <item>Статус</item>
         <item>Имя</item>
 
-        <item>Информация</item>
+        <item>Основная информация</item>
         <item>Имя водителя</item>
         <item>Номер</item>
         <item>Тип</item>
         <item>Цель</item>
+        <item>Документ</item>
 
         <item>Номер пропуска</item>
 
         <item>Кем создана запись</item>
         <item>Пост</item>
+        <item>Локальный телефон</item>
 
         <item>Компания</item>
-        <item>Название</item>
     </string-array>
 
 

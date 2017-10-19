@@ -12,6 +12,15 @@
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp">
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Главное окно"
+            android:textAlignment="center"
+            android:textAppearance="@android:style/TextAppearance.Holo.Medium"
+            android:textSize="24sp" />
+
         <include
             layout="@layout/type_code"
             android:layout_width="match_parent"

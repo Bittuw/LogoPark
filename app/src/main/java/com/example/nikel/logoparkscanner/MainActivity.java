@@ -8,7 +8,9 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,7 +26,7 @@ import com.example.nikel.logoparkscanner.Fragments.DiaFragment;
 import com.example.nikel.logoparkscanner.Fragments.MainFragment;
 import com.example.nikel.logoparkscanner.Fragments.WebFragment;
 
-public class MainActivity extends AppCompatActivity implements AuthFragment.NoticeListener { // TODO реализация логики в фрагментах
+public class MainActivity extends AppCompatActivity implements AuthFragment.NoticeListener {
 
 
     private WebFragment webFragment; // TODO Фрагмен веб формы
@@ -36,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
 
     private SharedPreferences mPref;
 
-    private boolean isReadInstruct, isAuthorized, isRestarting = false;
+    private boolean isReadInstruct, isAuthorized, isForegroundService, isRestarting = false;
 
     private DiaFragment manual_dlg;
 
@@ -58,6 +60,20 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Intent mIntent = new Intent(this, MainService.class);
+        mIntent.setAction(Constants.IntentParams.isActivityAlive);
+        mIntent.putExtra(Constants.IntentParams.isActivityAlive, true);
+        StartServiceTask(mIntent);
+
+        mIntent.setAction(Constants.IntentParams.StartRecCas);
+        StartServiceTask(mIntent);
+
+        if (isForegroundService) {
+            mIntent = new Intent(this, MainService.class);
+            mIntent.setAction(Constants.IntentParams.foregroundService);
+            mIntent.putExtra(Constants.IntentParams.foregroundService, isForegroundService);
+            StartServiceTask(mIntent);
+        }
     }
 
     @Override
@@ -80,34 +96,29 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        menu.add(0, 1, 0, "foregroundService").setCheckable(true);
+        menu.add(0, 1, 0, "Сервис всегда работает").setCheckable(true);
+        menu.findItem(1).setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        menu.findItem(1).setChecked(isForegroundService);
         menu.findItem(1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (item.isChecked()) {
-                    item.setChecked(false);
 
-                    Intent mIntent = new Intent(getApplicationContext(), MainService.class);
-                    mIntent.setAction(Constants.IntentParams.foregroundService);
-                    mIntent.putExtra(Constants.IntentParams.foregroundService, false);
-                    StartServiceTask(mIntent);
+                Intent mIntent = new Intent(getApplicationContext(), MainService.class);
+                mIntent.setAction(Constants.IntentParams.foregroundService);
+                mIntent.putExtra(Constants.IntentParams.foregroundService, !item.isChecked());
+                StartServiceTask(mIntent);
 
-                }
-                else {
-                    item.setChecked(true);
+                item.setChecked(!item.isChecked());
 
-                    Intent mIntent = new Intent(getApplicationContext(), MainService.class);
-                    mIntent.setAction(Constants.IntentParams.foregroundService);
-                    mIntent.putExtra(Constants.IntentParams.foregroundService, true);
-                    StartServiceTask(mIntent);
-                }
+                Bundle mBundle = new Bundle();
+                mBundle.putBoolean(Constants.IntentParams.foregroundService, item.isChecked());
+                setAppInfo(mBundle);
                 return true;
             }
         });
-
 
         return true;
     }
@@ -126,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         return true;
     }
 
+
     @Override
     protected void onResume(){
         Log.d(LOG_TAG, "onResume " + getIntent().getAction() + " " + getIntent().getFlags());
@@ -133,19 +145,23 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         if (!isRestarting)
             switch (getIntent().getAction()) {
                 case Constants.IntentParams.QR:
-                    sendBroadcast(getIntent());
+                    Intent mIntent = new Intent(Constants.IntentParams.QR);
+                    mIntent.putExtra("type", getIntent().getStringExtra("type"));
+                    mIntent.putExtra("code", getIntent().getStringExtra("code"));
+                    sendBroadcast(mIntent);
                     break;
                 case Constants.IntentParams.Auth:
                     sendBroadcast(getIntent().setFlags(0));
                     break;
                 case Constants.IntentParams.RecData:
-                    sendBroadcast(getIntent());
+                    sendBroadcast(getIntent().setFlags(0));
                     break;
                 default:
                     Log.e(LOG_TAG, "onResume " + getIntent().getAction());
                     break;
             }
             isRestarting = false;
+
         super.onResume();
     }
 
@@ -184,6 +200,12 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     @Override
     protected void onDestroy() {
         Log.d(LOG_TAG, "onDestroy");
+
+        Intent mIntent = new Intent(this, MainService.class);
+        mIntent.setAction(Constants.IntentParams.isActivityAlive);
+        mIntent.putExtra(Constants.IntentParams.isActivityAlive, false);
+        StartServiceTask(mIntent);
+
         super.onDestroy();
     }
 
@@ -232,9 +254,14 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     }
 
     @Override
-    public void StartServiceTask(Intent mIntent) {
-        Log.d(LOG_TAG, "startService with: " + mIntent.getAction());
-        startService(mIntent);
+    public void StartServiceTask(@Nullable Intent mIntent) {
+        try {
+            Log.d(LOG_TAG, "startService with: " + mIntent.getAction());
+            startService(mIntent);
+        } catch (NullPointerException e) {
+            Log.d(LOG_TAG, "startService with: " + null);
+            startService(new Intent(this, MainService.class));
+        }
     }
 
     @Override
@@ -268,11 +295,18 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
             isAuthorized = false;
         }
 
+        if (mPref.contains(Constants.IntentParams.foregroundService)) {
+            isForegroundService = mPref.getBoolean(Constants.IntentParams.foregroundService, false);
+        }
+        else {
+            isForegroundService = false;
+        }
+
     }
 
     private void setAppInfo(Bundle mBundle) {
         SharedPreferences.Editor editor = mPref.edit();
-        if (isReadInstruct) {
+        if (isReadInstruct && !mPref.contains(Constants.IS_FIRST_LAUNCH)) {
             editor.putString(Constants.IS_FIRST_LAUNCH, Constants.YES);
         }
         if (mBundle.containsKey(Constants.Password) && mBundle.containsKey(Constants.User)) {
@@ -282,6 +316,11 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
 
             user = mBundle.getString(Constants.User);
             password = mBundle.getString(Constants.Password);
+        }
+        if (mBundle.containsKey(Constants.IntentParams.foregroundService))
+        {
+            isForegroundService = mBundle.getBoolean(Constants.IntentParams.foregroundService);
+            editor.putBoolean(Constants.IntentParams.foregroundService, isForegroundService);
         }
         editor.apply();
     }

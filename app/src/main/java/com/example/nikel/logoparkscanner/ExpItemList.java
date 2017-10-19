@@ -334,7 +334,13 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
             murl = url;
             image = view.findViewById(R.id.imageView);
             textChildID = view.findViewById(R.id.textChildID);
-            mActivity.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.IntentParams.Picture));
+            try {
+                mActivity.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.IntentParams.Picture));
+            }  catch (Exception e)
+            {
+                Log.e(LOG_TAG, e.getMessage());
+                e.printStackTrace();
+            }
         }
 
 

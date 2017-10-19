@@ -42,7 +42,7 @@ public class MainService extends Service {
 
     private final String MESSAGE_TAG = "urovo.rcv.message";
     private Timer timer;
-    private boolean isAliveActivity;
+    private boolean isAliveActivity, isForegroundService;
 
     private HandlerThread rThread, getThread, postThread;
     private Handler rHanlder, getHandler, postHandler;
@@ -88,72 +88,80 @@ public class MainService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null) {
+        if (intent != null)
+            if (intent.getAction() != null) {
 
-            Log.d(LOG_TAG, "onStartCommand " + intent.getAction());
+                Log.d(LOG_TAG, "onStartCommand " + intent.getAction());
 
-            String action = intent.getAction();
+                String action = intent.getAction();
 
-            switch (action) {
-                case Constants.IntentParams.Auth:
-                    Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
-                    getData(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
-                    break;
-                case Constants.IntentParams.RecData:
-                    Log.d(LOG_TAG, this.getClass().getName() + ": " + action + " " + intent.getStringExtra(Constants.IntentParams.URL));
-                    getData(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
-                    break;
-                case Constants.IntentParams.Picture:
-                    getPicture(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
-                    break;
-                case Constants.IntentParams.SendData:
-                    Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
-                    sendData(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
-                    break;
-                case Constants.IntentParams.StartRecCas:
-                    if (rHanlder == null) {
-                        rThread = new HandlerThread("ReceiveThread");
-                        rThread.start();
-                        rHanlder = new Handler(rThread.getLooper());
+                switch (action) {
+                    case Constants.IntentParams.Auth:
+                        Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
+                        getData(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
+                        break;
+                    case Constants.IntentParams.RecData:
+                        Log.d(LOG_TAG, this.getClass().getName() + ": " + action + " " + intent.getStringExtra(Constants.IntentParams.URL));
+                        getData(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
+                        break;
+                    case Constants.IntentParams.Picture:
+                        getPicture(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
+                        break;
+                    case Constants.IntentParams.SendData:
+                        Log.d(LOG_TAG, this.getClass().getName() + ": " + action);
+                        sendData(action, intent.getStringExtra(Constants.IntentParams.URL), startId);
+                        break;
+                    case Constants.IntentParams.StartRecCas:
+                        if (rHanlder == null) {
+                            rThread = new HandlerThread("ReceiveThread");
+                            rThread.start();
+                            rHanlder = new Handler(rThread.getLooper());
 
-                        IntentFilter mIntentFilter = new IntentFilter();
-                        mIntentFilter.addAction(Constants.IntentParams.UROVO);
-                        registerReceiver(mBroadcastReceiver, mIntentFilter, null, rHanlder);
-                    } else {
-                        Log.e(LOG_TAG, action + ": Service is already working");
-                    }
-                    break;
-                case Constants.IntentParams.StopService:
-                    stopSelf();
-                    break;
-                case Constants.IntentParams.foregroundService:
-                    foregroundService(intent.getBooleanExtra(Constants.IntentParams.foregroundService, false));
-                    break;
-                case Constants.IntentParams.isOnlineTimer:
-                    Timer(intent.getBooleanExtra(Constants.IntentParams.isOnlineTimer, true));
-                    break;
-                default:
-                    Log.e(LOG_TAG, "onStartCommand " + intent.getAction());
-                    break;
-            }
+                            IntentFilter mIntentFilter = new IntentFilter();
+                            mIntentFilter.addAction(Constants.IntentParams.UROVO);
+                            registerReceiver(mBroadcastReceiver, mIntentFilter, null, rHanlder);
+                        } else {
+                            Log.e(LOG_TAG, action + ": Service is already working");
+                        }
+                        break;
+                    case Constants.IntentParams.StopService:
+                        stopSelf();
+                        break;
+                    case Constants.IntentParams.foregroundService:
+                        foregroundService(intent.getBooleanExtra(Constants.IntentParams.foregroundService, false));
+                        break;
+                    case Constants.IntentParams.isOnlineTimer:
+                        Timer(intent.getBooleanExtra(Constants.IntentParams.isOnlineTimer, true));
+                        break;
+                    case Constants.IntentParams.isActivityAlive:
+                        isAliveActivity = intent.getBooleanExtra(Constants.IntentParams.isActivityAlive, false);
+                        break;
+                    default:
+                        Log.e(LOG_TAG, "onStartCommand " + intent.getAction());
+                        break;
+                }
         }
         return START_STICKY;
     }
 
     private void foregroundService(boolean type) {
-
-        if (type) {
-            startForeground(NOTIFICATION_ID, new Notification());
-
-            Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса как открытый", Toast.LENGTH_SHORT);
-            mToast.setGravity(Gravity.BOTTOM, 0, 0);
-            mToast.show();
+        if (isForegroundService != type) {
+            if (type) {
+                startForeground(NOTIFICATION_ID, new Notification());
+                isForegroundService = type;
+                Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса как открытый", Toast.LENGTH_SHORT);
+                mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                mToast.show();
+            } else {
+                stopForeground(false);
+                isForegroundService = type;
+                Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса как срытый", Toast.LENGTH_SHORT);
+                mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                mToast.show();
+            }
         }
         else {
-            stopForeground(false);
-            Toast mToast = Toast.makeText(getApplicationContext(), "Запуск сервиса как срытый", Toast.LENGTH_SHORT);
-            mToast.setGravity(Gravity.BOTTOM, 0, 0);
-            mToast.show();
+            Log.e(LOG_TAG, "Receive current state of \"isForegroundService\": " + isForegroundService);
         }
     }
 
@@ -215,7 +223,7 @@ public class MainService extends Service {
             mIntent.setAction(Constants.IntentParams.isOnlineTimer);
             mIntent.putExtra(Constants.IntentParams.isOnlineTimer, temp);
 
-            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(mIntent);
+            sendBroadcast(mIntent);
         }
     }
 
@@ -297,6 +305,7 @@ public class MainService extends Service {
                         mIntent = new Intent(Constants.IntentParams.Picture);
                         mIntent.putExtra(Constants.IntentParams.Picture, mBitmap);
                         sendBroadcast(mIntent);
+                        break;
                     case "POST":
                         mIntent = new Intent(Constants.IntentParams.Success);
                         mIntent.putExtra(Constants.IntentParams.Success, success);
@@ -306,7 +315,6 @@ public class MainService extends Service {
                         Log.e(LOG_TAG, this.getClass().getName());
                         break;
                 }
-                stopSelf(startID);
             }
             catch (IOException ex) {
                 Log.e(LOG_TAG, ex.getMessage());
@@ -380,13 +388,6 @@ public class MainService extends Service {
                 mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 context.startActivity(mIntent);
             }
-        }
-    };
-
-    private BroadcastReceiver mBroadcastreceiverReboot = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
         }
     };
 }

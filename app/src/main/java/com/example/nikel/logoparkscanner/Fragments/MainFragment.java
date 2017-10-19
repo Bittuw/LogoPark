@@ -35,13 +35,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 /**
  * Created by nikel on 29.09.2017.
  */
 
 public class MainFragment extends Fragment {
 
-    private TextView type, code;
+    private TextView type, code, Title;
     private Activity mActivity;
     public static AuthFragment.NoticeListener mListener;
     private static final String LOG_TAG = "MainFragment";
@@ -51,12 +53,14 @@ public class MainFragment extends Fragment {
     public static ProgressBar progressBar;
     public static  ExpItemList adapter;
 
+    private String pattern = "[0-9]+";
+
     private Button more, action, close;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreate");
-        setRetainInstance(true);
+        //setRetainInstance(true);
         mActivity = getActivity();
 
         IntentFilter mIntentFilter = new IntentFilter();
@@ -68,10 +72,10 @@ public class MainFragment extends Fragment {
 
         mListener = (AuthFragment.NoticeListener) mActivity;
 
-        Intent mIntent = new Intent(mActivity, MainService.class);
+        /*Intent mIntent = new Intent(mActivity, MainService.class);
         mIntent.setAction(Constants.IntentParams.StartRecCas);
         mIntent.putExtra(Constants.IntentParams.foregroundService, true);
-        mListener.StartServiceTask(mIntent);
+        mListener.StartServiceTask(mIntent);*/
 
         super.onCreate(savedInstanceState);
     }
@@ -117,6 +121,7 @@ public class MainFragment extends Fragment {
         View footer = mActivity.getLayoutInflater().inflate(R.layout.footer_view, null, false);
         View header = mActivity.getLayoutInflater().inflate(R.layout.header_view, null, false);
         header.setOnClickListener(null);
+        Title = header.findViewById(R.id.Title);
         list.addHeaderView(header);
         list.addFooterView(footer);
 
@@ -127,6 +132,18 @@ public class MainFragment extends Fragment {
         action.setOnClickListener(onActionClick);
         more.setOnClickListener(onMoreClick);
         close.setOnClickListener(onCloseClick);
+    }
+
+    private String getNumber(final String string) {
+        String temp = "";
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(string);
+
+        while(m.find()) {
+            temp = temp + string.substring(m.start(), m.end());
+        }
+
+        return temp;
     }
 
     private class JSONAsync extends AsyncTask<JSONObject, Void, SimpleArrayMap<String, Object>> {
@@ -249,6 +266,7 @@ public class MainFragment extends Fragment {
                     progressBar.setVisibility(View.VISIBLE);
                     list.setVisibility(View.INVISIBLE);
                     type.setText(intent.getStringExtra("type"));
+                    Title.setText("Пропуск №" + getNumber(intent.getStringExtra("code")));
 
                     if (!intent.getStringExtra("code").contains("https")) {
                         code.setText(intent.getStringExtra("code").replace("http", "https"));
@@ -256,6 +274,8 @@ public class MainFragment extends Fragment {
                     else {
                         code.setText(intent.getStringExtra("code"));
                     }
+
+
 
                     url = code.getText() + "?" + user;
 
@@ -307,20 +327,30 @@ public class MainFragment extends Fragment {
         public void onClick(View view) {
             Log.d(LOG_TAG, "onClickAction");
             Toast mToast;
+
             switch (actionString) {
                 case "Пропустить":
                     mToast = Toast.makeText(mActivity, "Пропустить", Toast.LENGTH_SHORT);
                     mToast.setGravity(Gravity.BOTTOM, 0, 0);
                     mToast.show();
+
+
                     break;
                 case "Выпустить":
                     mToast = Toast.makeText(mActivity, "Выпустить" + action, Toast.LENGTH_SHORT);
                     mToast.setGravity(Gravity.BOTTOM, 0, 0);
                     mToast.show();
+
+
                 default:
                     Log.e(LOG_TAG, "onClick");
                     break;
             }
+
+            Intent mIntent = new Intent(mActivity, MainService.class);
+            mIntent.setAction(Constants.IntentParams.SendData);
+            mIntent.putExtra(Constants.IntentParams.URL, code.getText());
+            //mListener.StartServiceTask(mIntent);
         }
     };
 
@@ -335,6 +365,8 @@ public class MainFragment extends Fragment {
     View.OnClickListener onCloseClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            type.setText(null);
+            code.setText(null);
             adapter.setList(null);
             adapter.notifyDataSetChanged();
             list.setVisibility(View.GONE);

@@ -8,10 +8,7 @@
         android:id="@+id/Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:text="Информация"
+        android:text="Пропуск"
         android:textAlignment="center"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:typeface="serif" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
 </LinearLayout>

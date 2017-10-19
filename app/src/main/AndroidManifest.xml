@@ -28,8 +28,6 @@
         <receiver android:name=".BroadcastReceiverReboot">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="onCreateActivity"/>
-                <action android:name="onDestroyActivity"/>
                 <!--<action android:name="urovo.rcv.message"/>-->
             </intent-filter>
         </receiver>
