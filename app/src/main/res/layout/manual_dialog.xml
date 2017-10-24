@@ -18,7 +18,8 @@
                 android:id="@+id/Text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="viewStart" />
+                android:textAlignment="viewStart"
+                android:textIsSelectable="true"/>
 
             <CheckBox
                 android:id="@+id/CheckManual"

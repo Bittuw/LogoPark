@@ -12,7 +12,7 @@ import org.json.JSONObject;
 
 public class Constants {
 
-    public static final boolean DebugMode = false;
+    public static final boolean DebugMode = true;
     public static final String MainFileInfo = "MainFileInfo";
     public static final String IS_FIRST_LAUNCH = "IsFirstLaunch";
     public static final String IS_AUTHARIZED = "IsAutharized";
@@ -50,6 +50,7 @@ public class Constants {
         public static final String isActivityStop = "isActivityStop";
         public static final String Picture = "picture";
         public static final String UROVO = "urovo.rcv.message";
+        public static final String Fail = "Fail";
         public static final String Success = "Success";
     }
 

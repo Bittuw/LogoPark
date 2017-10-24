@@ -10,17 +10,28 @@
     <string name="checkBox">Confirm</string>
     <string name="text_for_auth">Придумайте новый пароль и просканируйте QR-код (Тестовая авторизация, далее пароль запрашиваться не будет)</string>
 
+    Тестовое приложение.\n
+
+    Основы:\n
+
+    1) Прочтите мануал и подтвердите его прочтение\n
     <string name="manual_dialog_text">
-        "Text for manual ksjdbfskdjbgkdfgbdflhgdflkghdnflgjndf
-        sdkjgbkjdsgbdfjkgbdjlgbdfjlgbdflgb
-        sldjgnlkdfjgbldjfg;aldshgflkjsdfhg;dfjg;dfgh;skdgnsdjng
-        nsgkjdfkljghndf;kgsdkhgkashbg;jlaglkdhfjsahgljadslj
-        sdglkhsdljkgnfjlgawpojfsidhlisdhg;isdhg;sdhgsdihgs
-        sdlghlsdhgo'dsgj;sdklhg;sdlnfh;iahsngljadshi;gjsad;gjs
-        sldjghpierhjowq;hniphjedjsngkjdsfhgfdgndf
-        dfljgnjdfgnfhkgldfkngldfkngldf
-        sjghsojdhgjsdfhgjksdfhgkjdfgjldfghdfjhgdjfgh
-        dflgldfhgdfjgdfj"
+        "Тестовое приложение.\n
+
+        <b>Основы:</b>\n
+
+        1) Прочтите мануал и подтвердите его прочтение.\n
+
+        2) Далее, следуя инструкциям авториации, просканируйте QR-код, который вам выдадут и придумайте <b>ЛЮБОЙ</b> пароль (Он больше спрашиваться не будет - пока что просто тест).\n
+
+        3) После авторизации можно приступать к сканированию QR пользователей. Там все интуитивно (Пропустить, выпустить и подробно в браузере).\n
+
+        4) Можно включить режим постоянного сервиса в меню, т.е. даже если вы выключили приложение, при сканировании QR пользователей приложение автоматически включится и выведет информацию.\n
+
+        5) При обнаружении критических неполадок сообщить <b>Косте</b> или мне лично. <b>dn@corp.lp-dev.com</b>\n
+
+        6) Приложение работает в тестовом режиме, возможно как баги так и подтормаживания.\n
+        "
     </string>
 
     <string name="confirm_dialog_text">

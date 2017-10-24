@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -86,8 +87,6 @@ public class MainService extends Service {
         if (intent != null)
             if (intent.getAction() != null) {
 
-                Log.d(LOG_TAG, "onStartCommand " + intent.getAction());
-
                 String action = intent.getAction();
 
                 switch (action) {
@@ -123,6 +122,7 @@ public class MainService extends Service {
                         stopSelf();
                         break;
                     case Constants.IntentParams.foregroundService:
+                        Log.d(LOG_TAG, "onStartCommand " + intent.getAction());
                         foregroundService(intent.getBooleanExtra(Constants.IntentParams.foregroundService, false));
                         break;
                     case Constants.IntentParams.isOnlineTimer:
@@ -130,9 +130,11 @@ public class MainService extends Service {
                         break;
                     case Constants.IntentParams.isActivityAlive:
                         isAliveActivity = intent.getBooleanExtra(Constants.IntentParams.isActivityAlive, false);
+                        Log.d(LOG_TAG, "onStartCommand " + intent.getAction() + " " + isAliveActivity);
                         break;
                     case Constants.IntentParams.isActivityStop:
                         isActivityStop = intent.getBooleanExtra(Constants.IntentParams.isActivityStop, false);
+                        Log.d(LOG_TAG, "onStartCommand " + intent.getAction() + " " + isActivityStop);
                         break;
                     default:
                         Log.e(LOG_TAG, "onStartCommand " + intent.getAction());
@@ -237,91 +239,118 @@ public class MainService extends Service {
 
         @Override
         public void run() {
+            Intent mIntent;
+
+            Pair<String, Boolean> responseURL;
+            Pair<Bitmap, Boolean> responsePicture;
+
+            switch (action) {
+                case Constants.IntentParams.Auth:
+                    responseURL = requestURL(path);
+                    if(responseURL.second) {
+                        mIntent = new Intent(Constants.IntentParams.Auth);
+                        mIntent.putExtra(Constants.IntentParams.GetData, responseURL.first);
+                        sendBroadcast(mIntent);
+                    }
+                    else {
+                        mIntent = new Intent(Constants.IntentParams.Fail);
+                        sendBroadcast(mIntent);
+                    }
+                    break;
+                case Constants.IntentParams.RecData:
+                    responseURL = requestURL(path);
+                    if(responseURL.second) {
+                        mIntent = new Intent(Constants.IntentParams.RecData);
+                        mIntent.putExtra(Constants.IntentParams.GetData, responseURL.first);
+                        sendBroadcast(mIntent);
+                    }
+                    else {
+                        mIntent = new Intent(Constants.IntentParams.Fail);
+                        sendBroadcast(mIntent);
+                    }
+                    break;
+                case Constants.IntentParams.Picture:
+                    responsePicture = requestPicture(path);
+                    if (responsePicture.second) {
+                        mIntent = new Intent(Constants.IntentParams.Picture);
+                        mIntent.putExtra(Constants.IntentParams.Picture, responsePicture.first);
+                        sendBroadcast(mIntent);
+                    }
+                    else {
+                        mIntent = new Intent(Constants.IntentParams.Fail);
+                        sendBroadcast(mIntent);
+                    }
+                    break;
+                case Constants.IntentParams.SendData:
+                    responseURL = requestURL(path);
+                    if(responseURL.second) {
+                        mIntent = new Intent(Constants.IntentParams.Success);
+                        sendBroadcast(mIntent);
+                    }
+                    else {
+                        mIntent = new Intent(Constants.IntentParams.Fail);
+                        sendBroadcast(mIntent);
+                    }
+                    break;
+                default:
+                    Log.e(LOG_TAG, this.getClass().getName());
+                    break;
+            }
+
+        }
+
+        private Pair<String, Boolean> requestURL(final String path) {
+
             BufferedReader reader = null;
             java.net.URL url;
             StringBuilder buf = new StringBuilder();
-            Bitmap mBitmap = null;
-            Intent mIntent;
             HttpsURLConnection connection;
             boolean success = false;
-            try{
-                switch (action) {
-                    case Constants.IntentParams.RecData:
-                        url = new URL(path);
-                        connection = (HttpsURLConnection)url.openConnection();
-                        connection.setRequestMethod("GET");
-                        connection.setReadTimeout(10000);
-                        connection.connect();
-                        reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                        String line;
 
-                        while ((line = reader.readLine()) != null) {
-                            buf.append(line + "\n");
-                        }
-                        break;
-                    case Constants.IntentParams.Picture:
-                        try {
-                            InputStream in = new java.net.URL(path).openStream();
-                            mBitmap = BitmapFactory.decodeStream(in);
-                        } catch (Exception e) {
-                            Log.e(LOG_TAG, e.getMessage());
-                        }
-                        break;
-                    case Constants.IntentParams.SendData: // TODO сделать POST запрос
-                        url = new URL(path);
-                        connection = (HttpsURLConnection)url.openConnection();
-                        connection.setRequestMethod("POST");
-                        connection.setDoInput(false);
-                        connection.setDoOutput(false);
-                        connection.setReadTimeout(10000);
-                        connection.connect();
+            try {
+                url = new URL(path);
 
-                        if (connection.getResponseCode() == 200)
-                            success = true;
-                        else
-                            success = false;
-                        break;
-                    default:
-                        Log.e(LOG_TAG, getClass().getName() + " error download");
+                connection = (HttpsURLConnection)url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setReadTimeout(10000);
+                connection.connect();
+                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String line;
 
-                        Toast mToast = Toast.makeText(getApplicationContext(), "Ошибка интернет-соединения: дейстиве - " + action, Toast.LENGTH_SHORT);
-                        mToast.setGravity(Gravity.BOTTOM, 0, 0);
-                        mToast.show();
+                while ((line = reader.readLine()) != null) {
+                    buf.append(line + "\n");
                 }
 
-                switch (action) {
-                    case Constants.IntentParams.Auth:
-                        mIntent = new Intent(Constants.IntentParams.Auth);
-                        mIntent.putExtra(Constants.IntentParams.GetData, buf.toString());
-                        sendBroadcast(mIntent);
-                        break;
-                    case Constants.IntentParams.RecData:
-                        mIntent = new Intent(Constants.IntentParams.RecData);
-                        mIntent.putExtra(Constants.IntentParams.GetData, buf.toString());
-                        sendBroadcast(mIntent);
-                        break;
-                    case Constants.IntentParams.Picture:
-                        mIntent = new Intent(Constants.IntentParams.Picture);
-                        mIntent.putExtra(Constants.IntentParams.Picture, mBitmap);
-                        sendBroadcast(mIntent);
-                        break;
-                    case Constants.IntentParams.SendData:
-                        mIntent = new Intent(Constants.IntentParams.Success);
-                        mIntent.putExtra(Constants.IntentParams.Success, success);
-                        sendBroadcast(mIntent);
-                        break;
-                    default:
-                        Log.e(LOG_TAG, this.getClass().getName());
-                        break;
-                }
-            }
-            catch (IOException ex) {
-                Log.e(LOG_TAG, ex.getMessage());
+                if (connection.getResponseCode() == 200)
+                    success = true;
+                else
+                    success = false;
+
+                return new Pair<>(buf.toString(), success);
+
+            } catch(IOException ex) {
+                Log.e(LOG_TAG, "Error with Ethernet in Runnable", ex);
+
                 Toast mToast = Toast.makeText(getApplicationContext(), "Проверте интернет соединение или сам штрих-код", Toast.LENGTH_LONG);
                 mToast.setGravity(Gravity.BOTTOM, 0, 0);
                 mToast.show();
             }
+            return new Pair<>("", false);
         }
+        private Pair<Bitmap, Boolean> requestPicture(final String path) {
+            Bitmap mBitmap;
+            try {
+                InputStream in = new java.net.URL(path).openStream();
+                mBitmap = BitmapFactory.decodeStream(in);
+                return new Pair<>(mBitmap, true);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error with download Picture", e);
+            }
+
+            return new Pair<>(null, false);
+        }
+
+
 
         public void setPath(String path) {
             this.path = path;

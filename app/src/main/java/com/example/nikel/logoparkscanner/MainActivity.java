@@ -4,6 +4,7 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,6 +18,12 @@ import android.widget.Toast;
 import com.example.nikel.logoparkscanner.Fragments.AuthFragment;
 import com.example.nikel.logoparkscanner.Fragments.DiaFragment;
 import com.example.nikel.logoparkscanner.Fragments.MainFragment;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements AuthFragment.NoticeListener {
 
@@ -38,9 +45,9 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(LOG_TAG, "onCreate " + getIntent().getAction());
+        createLogFile();
 
-        super.onCreate(savedInstanceState);
+        Log.d(LOG_TAG, "onCreate " + getIntent().getAction());
 
         getAppInfo();
 
@@ -63,10 +70,12 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
             mIntent.putExtra(Constants.IntentParams.foregroundService, isForegroundService);
             StartServiceTask(mIntent);
         }
+
+        super.onCreate(savedInstanceState);
     }
 
     @Override
-    protected void onStart(){ // Под вопросом
+    protected void onStart(){
         Log.d(LOG_TAG, "onStart " + getIntent().getAction());
         if (!isRestarting)
             switch (getIntent().getAction()) {
@@ -91,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
+        Log.d(LOG_TAG, "onCreateOptionsMenu");
         super.onCreateOptionsMenu(menu);
 
         menu.add(0, 1, 0, "Сервис в фоновом режиме").setCheckable(true);
@@ -259,18 +269,19 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
             Log.d(LOG_TAG, "startService with: " + mIntent.getAction());
             startService(mIntent);
         } catch (NullPointerException e) {
-            Log.d(LOG_TAG, "startService with: " + null);
+            Log.d(LOG_TAG, "startService with: " + null, e);
             startService(new Intent(this, MainService.class));
         }
     }
 
     @Override
     public void StopServiceTask() {
+        Log.d(LOG_TAG, "StopServiceTask");
         stopService((new Intent()).setAction(Constants.IntentParams.StopService));
     }
 
     private void getAppInfo() { // TODO инициализация параметров из файла
-
+        Log.d(LOG_TAG, "getAppInfo");
         this.mPref = getSharedPreferences(Constants.MainFileInfo, MODE_PRIVATE);
 
         if(Constants.DebugMode) {
@@ -305,6 +316,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
     }
 
     private void setAppInfo(Bundle mBundle) {
+        Log.d(LOG_TAG, "setAppInfo");
         SharedPreferences.Editor editor = mPref.edit();
         if (isReadInstruct && !mPref.contains(Constants.IS_FIRST_LAUNCH)) {
             editor.putString(Constants.IS_FIRST_LAUNCH, Constants.YES);
@@ -391,4 +403,53 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         manual_dlg.show(getFragmentManager(), manual_dlg.toString());
     }
 
+    private void createLogFile() {
+        if (isExternalStorageWritable()) {
+
+            String date = new SimpleDateFormat("dd-MMM-yyyy").format(new Date());
+
+            File appDirectory = new File(Environment.getExternalStorageDirectory() + "/LogoparkSanner");
+            File logDirectory = new File(appDirectory + "/log");
+            File logFile = new File(logDirectory, date + ".txt");
+
+            if ( !appDirectory.exists() ) {
+                appDirectory.mkdir();
+            }
+
+            if ( !logDirectory.exists() ) {
+                logDirectory.mkdir();
+            }
+
+            if (logDirectory.listFiles().length != 0) {
+                for (File file:logDirectory.listFiles()) {
+                    if (file.getName().equals(date))
+                        file.delete();
+                }
+            }
+
+            try {
+                Process process = Runtime.getRuntime().exec("logcat -c");
+                process = Runtime.getRuntime().exec("logcat -f " + logFile);
+            } catch ( IOException e ) {
+                Log.e(LOG_TAG, "Error with logcat", e);
+            }
+        }
+    }
+
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if ( Environment.MEDIA_MOUNTED.equals( state ) ) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if ( Environment.MEDIA_MOUNTED.equals( state ) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals( state ) ) {
+            return true;
+        }
+        return false;
+    }
 }

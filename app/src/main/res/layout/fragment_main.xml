@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:text="Главное окно"
             android:textAlignment="center"
-            android:textAppearance="@android:style/TextAppearance.Holo.Large" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
 
         <include
             layout="@layout/type_code"

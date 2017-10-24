@@ -136,7 +136,7 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
             try {
                 executer.finalize();
             } catch (Throwable e) {
-                Log.d(LOG_TAG, e.getMessage());
+                Log.e(LOG_TAG, "Error with finalize FilterMap",e);
             }
         }
     }
@@ -315,8 +315,7 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
             try {
                 mActivity.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.IntentParams.Picture));
             }  catch (Exception e) {
-                Log.e(LOG_TAG, e.getMessage());
-                e.printStackTrace();
+                Log.e(LOG_TAG, "Error with register BroadcastReceiver", e);
             }
         }
 

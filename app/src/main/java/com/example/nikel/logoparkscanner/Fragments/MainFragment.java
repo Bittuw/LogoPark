@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
@@ -31,6 +32,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -103,6 +106,7 @@ public class MainFragment extends Fragment {
         mIntentFilter.addAction(Constants.IntentParams.RecData);
         mIntentFilter.addAction(Constants.IntentParams.QR);
         mIntentFilter.addAction(Constants.IntentParams.isOnlineTimer);
+        mIntentFilter.addAction(Constants.IntentParams.Fail);
         mIntentFilter.addAction(Constants.IntentParams.Success);
         mActivity.registerReceiver(mBroadcastReceiver, mIntentFilter);
 
@@ -165,7 +169,7 @@ public class MainFragment extends Fragment {
                 JSONArray t = temp[0].getJSONArray("items");
                 json = t.getJSONObject(0);
             } catch (JSONException e) {
-                Log.e(LOG_TAG, "Ошибка при извлечении JSONArray items");
+                Log.e(LOG_TAG, "Error with retrieval JSONArray items", e);
             }
             return getSimpleArrayMap(json, getFilterResource());
         }
@@ -218,7 +222,7 @@ public class MainFragment extends Fragment {
             try {
                 executer.finalize();
             } catch (Throwable e) {
-                Log.d(LOG_TAG, e.getMessage());
+                Log.e(LOG_TAG, "Error with delete JSONAsync", e);
             }
         }
 
@@ -259,7 +263,7 @@ public class MainFragment extends Fragment {
                 mToast.setGravity(Gravity.BOTTOM, 0, 0);
                 mToast.show();
             } catch (NullPointerException e) {
-                Log.e(LOG_TAG, e.getMessage());
+                Log.e(LOG_TAG, "Error with NullPointer JSON",e);
             }
             if (map.isEmpty()) {
                 return null;
@@ -276,9 +280,10 @@ public class MainFragment extends Fragment {
     BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, final Intent intent) {
+            Toast mToast;
+            Log.d(LOG_TAG, intent.getAction());
             switch (intent.getAction()) {
                 case Constants.IntentParams.QR:
-                    Log.d(LOG_TAG, intent.getAction());
                     if (!AuthFragment.validateCode(intent.getStringExtra("code"))) {
 
                         progressBar.setVisibility(View.VISIBLE);
@@ -304,20 +309,19 @@ public class MainFragment extends Fragment {
                     }
                     else {
                         Log.e(LOG_TAG, "Not valid URL for read");
-
-                        Toast mToast = Toast.makeText(mActivity, "Нечитаемый QR", Toast.LENGTH_SHORT);
+                        mToast = Toast.makeText(mActivity, "Нечитаемый QR", Toast.LENGTH_SHORT);
                         mToast.setGravity(Gravity.BOTTOM, 0, 0);
                         mToast.show();
                     }
                     break;
 
                 case Constants.IntentParams.RecData:
-                    Log.d(LOG_TAG, intent.getAction());
                     try {
                         json = new JSONObject(intent.getStringExtra(Constants.IntentParams.GetData));
                     } catch (JSONException e) {
-                        Log.e(LOG_TAG, e.getMessage());
-                        Toast mToast = Toast.makeText(mActivity, "Ошибка при  парсинге json", Toast.LENGTH_SHORT);
+                        Log.e(LOG_TAG, "Error with retrieval JSON",e);
+
+                        mToast = Toast.makeText(mActivity, "Ошибка при  парсинге json", Toast.LENGTH_SHORT);
                         mToast.setGravity(Gravity.BOTTOM, 0, 0);
                         mToast.show();
                     }
@@ -328,20 +332,20 @@ public class MainFragment extends Fragment {
                 case Constants.IntentParams.isOnlineTimer:
                     break;
                 case Constants.IntentParams.Success:
-                    if (intent.getBooleanExtra(Constants.IntentParams.Success, false)) {
-                        adapter.setList(null);
-                        adapter.notifyDataSetChanged();
-                        list.setVisibility(View.GONE);
+                    Log.d(LOG_TAG, "Success with SendData");
+                    adapter.setList(null);
+                    adapter.notifyDataSetChanged();
+                    list.setVisibility(View.GONE);
 
-                        Toast mToast = Toast.makeText(mActivity, "Успешно отправленно", Toast.LENGTH_SHORT);
-                        mToast.setGravity(Gravity.BOTTOM, 0, 0);
-                        mToast.show();
-                    }
-                    else {
-                        Toast mToast = Toast.makeText(mActivity, "Не успешная отправка", Toast.LENGTH_SHORT);
-                        mToast.setGravity(Gravity.BOTTOM, 0, 0);
-                        mToast.show();
-                    }
+                    mToast = Toast.makeText(mActivity, "Успешно отправленно", Toast.LENGTH_SHORT);
+                    mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                    mToast.show();
+                    break;
+                case Constants.IntentParams.Fail:
+                    Log.e(LOG_TAG, "Fail to SendData");
+                    mToast = Toast.makeText(mActivity, "Не успешная отправка", Toast.LENGTH_SHORT);
+                    mToast.setGravity(Gravity.BOTTOM, 0, 0);
+                    mToast.show();
                     break;
                 default:
                     break;
@@ -360,23 +364,22 @@ public class MainFragment extends Fragment {
                     mToast = Toast.makeText(mActivity, "Пропустить", Toast.LENGTH_SHORT);
                     mToast.setGravity(Gravity.BOTTOM, 0, 0);
                     mToast.show();
-
-
                     break;
+
                 case "Выпустить":
                     mToast = Toast.makeText(mActivity, "Выпустить" + action, Toast.LENGTH_SHORT);
                     mToast.setGravity(Gravity.BOTTOM, 0, 0);
                     mToast.show();
-
+                    break;
 
                 default:
-                    Log.e(LOG_TAG, "onClick");
+                    Log.e(LOG_TAG, "onClick: Uncaught action");
                     break;
             }
 
             Intent mIntent = new Intent(mActivity, MainService.class);
             mIntent.setAction(Constants.IntentParams.SendData);
-            mIntent.putExtra(Constants.IntentParams.URL, url);
+            mIntent.putExtra(Constants.IntentParams.URL, makingGetURL((String) code.getText(), actionString));
             mListener.StartServiceTask(mIntent);
         }
     };
@@ -399,6 +402,22 @@ public class MainFragment extends Fragment {
             list.setVisibility(View.INVISIBLE);
         }
     };
+
+    private String makingGetURL(final String path, final String action) {
+        String temp = "";
+        switch (action) {
+            case "Пропустить":
+                temp += path + "?change&status=status_in&key=" + user;
+                break;
+            case "Выпустить":
+                temp += path + "?change&status=status_finished&key=" + user;
+                break;
+            default:
+                Log.e(LOG_TAG, "Uncaught action");
+                return "";
+        }
+        return temp;
+    }
 
     @Override
     public void onDestroy() {
