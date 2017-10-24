@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
         super.onCreateOptionsMenu(menu);
 
         menu.add(0, 1, 0, "Сервис в фоновом режиме").setCheckable(true);
+        menu.add(0, 2, 0, "Мануал");
         menu.findItem(1).setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         menu.findItem(1).setChecked(isForegroundService);
         menu.findItem(1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -120,6 +121,22 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
                 Bundle mBundle = new Bundle();
                 mBundle.putBoolean(Constants.IntentParams.foregroundService, item.isChecked());
                 setAppInfo(mBundle);
+                return true;
+            }
+        });
+
+        menu.findItem(2).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+
+                manual_dlg = new DiaFragment();
+                Bundle mBundle = new Bundle();
+                mBundle.putInt(Constants.TypeOfDialog, Constants.ManualDialog);
+                manual_dlg.setArguments(mBundle);
+                manual_dlg.setOnClickListener(new View.OnClickListener() {
+
+                }));
+                manual_dlg.show(getFragmentManager(), manual_dlg.toString());
                 return true;
             }
         });
