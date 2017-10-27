@@ -12,7 +12,7 @@ import org.json.JSONObject;
 
 public class Constants {
 
-    public static final boolean DebugMode = true;
+    public static final boolean DebugMode = false;
     public static final String MainFileInfo = "MainFileInfo";
     public static final String IS_FIRST_LAUNCH = "IsFirstLaunch";
     public static final String IS_AUTHARIZED = "IsAutharized";

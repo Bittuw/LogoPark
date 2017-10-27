@@ -69,8 +69,8 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
         String[] temp =  mActivity.getResources().getStringArray(R.array.toShowOnList);
         toShowOnList = new ArrayList<>(Arrays.asList(temp));
 
-        temp =  mActivity.getResources().getStringArray(R.array.doNotToShowOnList);
-        doNotToShowOnList = new ArrayList<>(Arrays.asList(temp));
+        /*temp =  mActivity.getResources().getStringArray(R.array.doNotToShowOnList);
+        doNotToShowOnList = new ArrayList<>(Arrays.asList(temp));*/
 
         String[] keys = mActivity.getResources().getStringArray(R.array.translate_key);
         String[] values = mActivity.getResources().getStringArray(R.array.translate_value);
@@ -104,7 +104,7 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
                 String key = map.keyAt(loop);
                 Object mObject = map.get(key);
 
-                if (mObject instanceof SimpleArrayMap && toShowOnList.contains(key) && !doNotToShowOnList.contains(key)) {
+                if (mObject instanceof SimpleArrayMap && toShowOnList.contains(key) /*&& !doNotToShowOnList.contains(key)*/) {
                     if (translate.containsKey(key)) {
                         temp.put(translate.get(key), FilterArray((SimpleArrayMap<String, Object>) mObject));
                         continue;
@@ -115,7 +115,7 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
                     }
                 }
 
-                if(mObject instanceof String && toShowOnList.contains(key) && !doNotToShowOnList.contains(key)) {
+                if(mObject instanceof String && toShowOnList.contains(key) /*&& !doNotToShowOnList.contains(key)*/) {
                     if (translate.containsKey(key))
                         temp.put(translate.get(key), mObject);
                     else {
