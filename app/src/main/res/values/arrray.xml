@@ -30,13 +30,28 @@
         <item>location</item>
     </string-array>
 
-    <string-array name="doNotToShowOnList">
-        <item>id</item>
-    </string-array>
-
     <string-array name="translate">
-        <item>@array/translate_key</item>
-        <item>@array/translate_value</item>
+        <item>pr__status__Статус</item>
+        <item>sc__name__Название__status</item>
+
+        <item>pr__info__Информация</item>
+        <item>sc__drivername__Имя водителя</item>
+        <item>sc__govnumber__Гос. номер</item>
+        <item>sc__cartype__Тип</item>
+        <item>sc__visit__Цель</item>
+        <item>sc__document__Документ</item>
+
+        <item>pr__number__Номер</item>
+
+        <item>pr__created__Создан</item>
+        <item>sc__post___Пост</item>
+        <item>sc__phone_local__Лок. номер</item>
+
+        <item>pr__company__Кмопания</item>
+        <item>sc__location__Назначение</item>
+
+        <item>sg__other__Прочее</item>
+        <item>sk__name__Номер__created</item>
     </string-array>
 
     <string-array name="translate_key">
@@ -80,6 +95,5 @@
         <item>Компания</item>
         <item>location</item>
     </string-array>
-
 
 </resources>

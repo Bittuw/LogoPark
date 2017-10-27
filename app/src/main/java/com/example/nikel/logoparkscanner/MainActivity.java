@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
                 Bundle mBundle = new Bundle();
                 mBundle.putBoolean(Constants.IntentParams.foregroundService, item.isChecked());
                 setAppInfo(mBundle);
-                return true;
+                return false;
             }
         });
 
@@ -129,14 +129,14 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
 
-                manual_dlg = new DiaFragment();
+                /*manual_dlg = new DiaFragment();
                 Bundle mBundle = new Bundle();
                 mBundle.putInt(Constants.TypeOfDialog, Constants.ManualDialog);
                 manual_dlg.setArguments(mBundle);
                 manual_dlg.setOnClickListener(new View.OnClickListener() {
 
                 }));
-                manual_dlg.show(getFragmentManager(), manual_dlg.toString());
+                manual_dlg.show(getFragmentManager(), manual_dlg.toString());*/
                 return true;
             }
         });
@@ -437,11 +437,15 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
                 logDirectory.mkdir();
             }
 
-            if (logDirectory.listFiles().length != 0) {
-                for (File file:logDirectory.listFiles()) {
-                    if (file.getName().equals(date))
-                        file.delete();
+            try {
+                if (logDirectory.listFiles().length != 0) {
+                    for (File file : logDirectory.listFiles()) {
+                        if (file.getName().equals(date))
+                            file.delete();
+                    }
                 }
+            } catch (NullPointerException e) {
+                Log.d(LOG_TAG, "Error with clear of log", e);
             }
 
             try {
