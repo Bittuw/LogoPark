@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
@@ -18,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -32,8 +32,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -44,21 +42,21 @@ import java.util.regex.Matcher;
  * Created by nikel on 29.09.2017.
  */
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements ExpItemList.onDataChange {
 
-    private TextView type, code, Title;
+    private TextView /*type, code,*/ Title;
     private Activity mActivity;
     public static AuthFragment.NoticeListener mListener;
     private static final String LOG_TAG = "MainFragment";
-    private String user, url, actionString;
+
+    private String user, code, url, actionString;
     public static ExpandableListView list;
     private JSONObject json;
-    public static ProgressBar progressBar;
-    public static  ExpItemList adapter;
+    private ProgressBar progressBar;
+    public static ExpItemList adapter;
     private JSONAsync executer;
 
     private String pattern = "[0-9]+";
-
     private Button more, action, close;
 
     @Override
@@ -89,9 +87,12 @@ public class MainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreateView");
         View v = inflater.inflate(R.layout.fragment_main, container, false);
-        type = v.findViewById(R.id.TypeID);
-        code = v.findViewById(R.id.CodeID);
-        list = v.findViewById(R.id.fragment_list);
+        //type = v.findViewById(R.id.TypeID);
+        //code = v.findViewById(R.id.CodeID);
+        action = v.findViewById(R.id.action);
+        more = v.findViewById(R.id.more);
+        close = v.findViewById(R.id.close);
+        list = v.findViewById(R.id.list);
         progressBar = v.findViewById(R.id.progressBar);
 
         prepareListView();
@@ -132,17 +133,17 @@ public class MainFragment extends Fragment {
 
     private void prepareListView() {
         Log.d(LOG_TAG, "prepareListView");
-        adapter = new ExpItemList(list, mActivity);
-        View footer = mActivity.getLayoutInflater().inflate(R.layout.footer_view, null, false);
+        adapter = new ExpItemList(list, mActivity, this);
+        /*View footer = mActivity.getLayoutInflater().inflate(R.layout.footer_view, null, false);*/
         View header = mActivity.getLayoutInflater().inflate(R.layout.header_view, null, false);
         header.setOnClickListener(null);
         Title = header.findViewById(R.id.Title);
         list.addHeaderView(header);
-        list.addFooterView(footer);
+        /*list.addFooterView(footer);
 
         action = footer.findViewById(R.id.Action);
         more = footer.findViewById(R.id.More);
-        close = footer.findViewById(R.id.Close);
+        close = footer.findViewById(R.id.Close);*/
 
         action.setOnClickListener(onActionClick);
         more.setOnClickListener(onMoreClick);
@@ -176,7 +177,7 @@ public class MainFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            action.setVisibility(View.GONE);
+            //action.setVisibility(View.GONE);
             super.onPreExecute();
         }
 
@@ -197,23 +198,27 @@ public class MainFragment extends Fragment {
                     actionString = "Пропустить";
                     action.setVisibility(View.VISIBLE);
                     action.setText("Пропустить");
+                    action.setClickable(true);
                     break;
 
                 case "4":
                     actionString = "4";
+                    action.setText("Покинул территорию");
+                    action.setClickable(false);
                     break;
 
                 case "3":
                     actionString = "Выпустить";
                     action.setVisibility(View.VISIBLE);
                     action.setText("Выпустить");
+                    action.setClickable(true);
                     break;
 
                 default:
                     adapter.Stop();
                     Log.e(LOG_TAG, "Невалидный JSON");
 
-                    Toast mToast = Toast.makeText(mActivity, "Ошибки получение данных", Toast.LENGTH_SHORT);
+                    Toast mToast = Toast.makeText(mActivity, "Ошибки получение данных: Невалидный JSON", Toast.LENGTH_SHORT);
                     mToast.setGravity(Gravity.BOTTOM, 0, 0);
                     mToast.show();
                     break;
@@ -286,22 +291,21 @@ public class MainFragment extends Fragment {
                 case Constants.IntentParams.QR:
                     if (!AuthFragment.validateCode(intent.getStringExtra("code"))) {
 
-                        progressBar.setVisibility(View.VISIBLE);
-                        list.setVisibility(View.INVISIBLE);
-                        type.setText(intent.getStringExtra("type"));
+                        setDownloading(View.INVISIBLE, View.VISIBLE);
+                        /*progressBar.setVisibility(View.VISIBLE);*/
+                        //list.setVisibility(View.INVISIBLE);
+                        //type.setText(intent.getStringExtra("type"));
 
                         Title.setText("Пропуск №" + getNumber(intent.getStringExtra("code")));
 
                         if (!intent.getStringExtra("code").contains("https")) {
-                            code.setText(intent.getStringExtra("code").replace("http", "https"));
+                            code = (intent.getStringExtra("code").replace("http", "https"));
                         }
                         else {
-                            code.setText(intent.getStringExtra("code"));
+                            code = (intent.getStringExtra("code"));
                         }
 
-
-
-                        url = code.getText() + "?" + user;
+                        url = code + "?" + user;
 
                         Intent mIntent = new Intent(mActivity, MainService.class);
                         mIntent.setAction(Constants.IntentParams.RecData);
@@ -336,7 +340,8 @@ public class MainFragment extends Fragment {
                     Log.d(LOG_TAG, "Success with SendData");
                     adapter.setList(null);
                     adapter.notifyDataSetChanged();
-                    list.setVisibility(View.GONE);
+                    //list.setVisibility(View.GONE);
+                    setDownloading(View.INVISIBLE, View.INVISIBLE);
 
                     mToast = Toast.makeText(mActivity, "Успешно отправленно", Toast.LENGTH_SHORT);
                     mToast.setGravity(Gravity.BOTTOM, 0, 0);
@@ -344,6 +349,7 @@ public class MainFragment extends Fragment {
                     break;
                 case Constants.IntentParams.Fail:
                     Log.e(LOG_TAG, "Fail to SendData");
+
                     mToast = Toast.makeText(mActivity, "Не успешная отправка", Toast.LENGTH_SHORT);
                     mToast.setGravity(Gravity.BOTTOM, 0, 0);
                     mToast.show();
@@ -380,7 +386,7 @@ public class MainFragment extends Fragment {
 
             Intent mIntent = new Intent(mActivity, MainService.class);
             mIntent.setAction(Constants.IntentParams.SendData);
-            mIntent.putExtra(Constants.IntentParams.URL, makingGetURL((String) code.getText(), actionString));
+            mIntent.putExtra(Constants.IntentParams.URL, makingGetURL(code, actionString));
             mListener.StartServiceTask(mIntent);
         }
     };
@@ -388,7 +394,7 @@ public class MainFragment extends Fragment {
     View.OnClickListener onMoreClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse((String) code.getText()));
+            Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(code));
             startActivity(mIntent);
         }
     };
@@ -396,11 +402,11 @@ public class MainFragment extends Fragment {
     View.OnClickListener onCloseClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            type.setText(null);
-            code.setText(null);
+            /*type.setText(null);
+            code.setText(null);*/
             adapter.setList(null);
             adapter.notifyDataSetChanged();
-            list.setVisibility(View.INVISIBLE);
+            setDownloading(View.INVISIBLE, View.INVISIBLE);
         }
     };
 
@@ -425,5 +431,21 @@ public class MainFragment extends Fragment {
         Log.d(LOG_TAG, "onDestroy");
         mActivity.unregisterReceiver(mBroadcastReceiver);
         super.onDestroy();
+    }
+
+    @Override
+    public void onDataLoaded() {
+        list.setAdapter(adapter);
+        setDownloading(View.VISIBLE, View.INVISIBLE);
+    }
+
+    public void setDownloading(int Visible, int VisibleOfProgress) {
+
+        list.setVisibility(Visible);
+        more.setVisibility(Visible);
+        action.setVisibility(Visible);
+        close.setVisibility(Visible);
+
+        progressBar.setVisibility(VisibleOfProgress);
     }
 }

@@ -8,6 +8,8 @@
     <string name="ok">OK</string>
     <string name="exit">EXIT</string>
     <string name="checkBox">Confirm</string>
+    <string name="close">Закрыть</string>
+    <string name="more">Подробнее</string>
     <string name="text_for_auth">Придумайте новый пароль и просканируйте QR-код (Тестовая авторизация, далее пароль запрашиваться не будет)</string>
 
     Тестовое приложение.\n

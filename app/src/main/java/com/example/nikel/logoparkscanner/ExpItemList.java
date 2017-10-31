@@ -1,6 +1,7 @@
 package com.example.nikel.logoparkscanner;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,16 +36,19 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
     private SimpleArrayMap<String, String> temp, translate;
     private Activity mActivity;
     private ViewImageHolder viewImageHolder;
-    private ArrayList<String> toShowOnList, doNotToShowOnList;
+    private ArrayList<String> toShowOnList;
     private FilterMap executer;
 
+    private onDataChange mListener;
     public int currentGroupExpand;
 
-    public ExpItemList(ExpandableListView v, Activity mmActivity){
+    public ExpItemList(ExpandableListView v, Activity mmActivity, Fragment fragment){
         Log.d(LOG_TAG, "ExpItemList");
         mActivity = mmActivity;
         v.setOnGroupClickListener(this);
         getResources(mActivity);
+
+        mListener = (onDataChange) fragment;
     }
 
     public void setList (SimpleArrayMap<String, Object> temp){
@@ -81,14 +85,14 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
     private class FilterMap extends AsyncTask<SimpleArrayMap<String, Object>, Void, SimpleArrayMap<String, Object>> {
         @Override
         protected void onPreExecute() {
-            MainFragment.progressBar.setVisibility(View.VISIBLE);
-            MainFragment.list.setVisibility(View.INVISIBLE);
+            //MainFragment.progressBar.setVisibility(View.VISIBLE);
+            //MainFragment.list.setVisibility(View.INVISIBLE);
             super.onPreExecute();
         }
 
         @Override
         protected void onCancelled() {
-            MainFragment.progressBar.setVisibility(View.INVISIBLE);
+            //MainFragment.progressBar.setVisibility(View.INVISIBLE);
             super.onCancelled();
         }
 
@@ -131,7 +135,7 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
         protected void onPostExecute(SimpleArrayMap<String, Object> map) {
             mFilteredGroups = map;
             notifyDataSetChanged();
-            MainFragment.list.setAdapter(MainFragment.adapter);
+            //MainFragment.list.setAdapter(MainFragment.adapter);
             executer.cancel(true);
             try {
                 executer.finalize();
@@ -152,8 +156,9 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
-        MainFragment.list.setVisibility(View.VISIBLE);
-        MainFragment.progressBar.setVisibility(View.INVISIBLE);
+        /*MainFragment.list.setVisibility(View.VISIBLE);
+        MainFragment.progressBar.setVisibility(View.INVISIBLE);*/
+        mListener.onDataLoaded();
     }
 
     @Override
@@ -346,5 +351,9 @@ public class ExpItemList extends BaseExpandableListAdapter implements Expandable
     protected void finalize() throws Throwable {
 
         super.finalize();
+    }
+
+    public interface onDataChange {
+        public void onDataLoaded();
     }
 }
