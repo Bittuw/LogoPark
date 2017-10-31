@@ -13,14 +13,6 @@
         tools:layout_editor_absoluteY="8dp"
         tools:ignore="MissingConstraints">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Главное окно"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
-
         <include
             layout="@layout/type_code"
             android:layout_width="match_parent"

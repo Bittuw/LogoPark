@@ -289,6 +289,7 @@ public class MainFragment extends Fragment {
                         progressBar.setVisibility(View.VISIBLE);
                         list.setVisibility(View.INVISIBLE);
                         type.setText(intent.getStringExtra("type"));
+
                         Title.setText("Пропуск №" + getNumber(intent.getStringExtra("code")));
 
                         if (!intent.getStringExtra("code").contains("https")) {
