@@ -2,11 +2,13 @@ package com.example.nikel.logoparkscanner.DataTypes.InternalTypeData;
 
 import android.support.annotation.Nullable;
 
+import com.example.nikel.logoparkscanner.DataTypes.InternalTypeData.InternalData.GenericInternalDataType;
+
 /**
  * Created by nikel on 31.10.2017.
  */
 
-public class InternalSinglePair extends InternalSubPair {
+public class InternalSinglePair extends GenericInternalDataType {
 
     private String field_value;
     private final String field_parent;

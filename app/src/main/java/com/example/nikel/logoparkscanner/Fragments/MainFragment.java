@@ -263,7 +263,7 @@ public class MainFragment extends Fragment implements ExpItemList.onDataChange {
                     }
                 }
             } catch (JSONException e) {
-                Log.e(LOG_TAG, e.getMessage());
+                Log.e(LOG_TAG, "Not valid JSON", e);
                 Toast mToast = Toast.makeText(mActivity, "Ошибка при  парсинге json в Async", Toast.LENGTH_SHORT);
                 mToast.setGravity(Gravity.BOTTOM, 0, 0);
                 mToast.show();

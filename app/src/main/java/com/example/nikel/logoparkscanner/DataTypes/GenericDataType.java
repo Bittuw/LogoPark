@@ -1,10 +1,12 @@
 package com.example.nikel.logoparkscanner.DataTypes;
 
+import java.util.ArrayList;
+
 /**
  * Created by nikel on 31.10.2017.
  */
 
-public abstract class GenericDataType {
+public abstract class GenericDataType extends ArrayList{
     private final String field_name_eng;
     private final String field_type;
 
