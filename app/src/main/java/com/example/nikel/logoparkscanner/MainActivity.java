@@ -129,14 +129,22 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.Noti
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
 
-                /*manual_dlg = new DiaFragment();
+                manual_dlg = new DiaFragment();
                 Bundle mBundle = new Bundle();
                 mBundle.putInt(Constants.TypeOfDialog, Constants.ManualDialog);
                 manual_dlg.setArguments(mBundle);
                 manual_dlg.setOnClickListener(new View.OnClickListener() {
-
-                }));
-                manual_dlg.show(getFragmentManager(), manual_dlg.toString());*/
+                    @Override
+                    public void onClick(View view) {
+                        manual_dlg.CloseDialog();
+                    }
+                }, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        manual_dlg.CloseDialog();
+                    }
+                });
+                manual_dlg.show(getFragmentManager(), manual_dlg.toString());
                 return true;
             }
         });

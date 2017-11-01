@@ -3,4 +3,13 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="gold">	#FFD700</color>
+    <color name="goldenrod">#DAA520</color>
+
+    <color name="crimson">#DC143C</color>
+    <color name="orangered">#FF4500</color>
+    
+    <color name="lightgreen">#90EE90</color>
+    <color name="mediumseagreen">#3CB371</color>
 </resources>

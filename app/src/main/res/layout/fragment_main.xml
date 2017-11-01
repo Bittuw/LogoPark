@@ -26,19 +26,23 @@
 
         <Button
             android:id="@+id/action"
+            style="@style/ButtonMargin"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Button"
+            android:background="@drawable/action_button_selector"
             android:visibility="gone" />
 
         <Button
             android:id="@+id/more"
+            style="@style/ButtonMargin"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="@drawable/more_button_selector"
             android:text="@string/more"
             android:visibility="gone" />
+
     </LinearLayout>
 
     <ExpandableListView
@@ -54,9 +58,11 @@
 
     <Button
         android:id="@+id/close"
+        style="@style/ButtonMargin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:background="@drawable/close_button_selector"
         android:text="@string/close"
         android:visibility="gone" />
 
