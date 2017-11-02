@@ -2,6 +2,8 @@ package com.example.nikel.logoparkscanner.DataTypes;
 
 import android.support.annotation.Nullable;
 
+import com.example.nikel.logoparkscanner.DataTypes.InternalDataTypes.InternalDataType;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -11,17 +13,17 @@ import java.util.Iterator;
 
 public class InternalDataTypeListWrapper<T> extends ArrayList<T> {
 
-    public InternalDataTypeList getElement(final String field_name_rus) {
+    public T getElement(final String field_name_rus) {
         int index = findElement(field_name_rus);
         if(index < 0)
             return null;
-        return (InternalDataTypeList) this.get(index);
+        return this.get(index);
     }
 
     private int findElement(final String field_name_rus) {
-        Iterator iterator = this.iterator();
+        Iterator<T> iterator = this.iterator();
         while(iterator.hasNext()) {
-            InternalDataTypeList temp = (InternalDataTypeList) iterator.next();
+            InternalDataTypeList<InternalDataType> temp = (InternalDataTypeList<InternalDataType>) iterator.next();
 
             if (field_name_rus.equals(temp.getField_name_rus()))
                 return this.indexOf(temp);

@@ -101,7 +101,7 @@ public class JSONParser {
             mMarkupResourceList.put(element, element);
         }
     }
-    private boolean makeTargetList() {
+    private boolean makeTargetList() { // TODO disable raw data, may be create new WrapperList
         mTargetList = new InternalDataTypeListWrapper<>();
         Iterator iterator = mInternalList.iterator();
 
@@ -111,6 +111,8 @@ public class JSONParser {
                 InternalDataTypeList<InternalDataType> element = new InternalDataTypeList<>();
                 element.setField_name_rus(temp.getField_name_rus());
                 mTargetList.add(element);
+            } else if(temp.getField_type().equals("sc")){
+                (mTargetList.getElement(temp.getField_target_parent())).add(temp);
             }
         }
         return true;
@@ -122,7 +124,6 @@ public class JSONParser {
             String key = iterator.next();
 
             JSONDataTypeBuilder builderJSON = new JSONDataTypeBuilder();
-            InternalDataTypeBuilder builderInternal = new InternalDataTypeBuilder();
 
             try {
                 if (tempJSON.get(key) instanceof JSONObject || jsonFilter.contains(key)) {
@@ -178,26 +179,10 @@ public class JSONParser {
         }
     }
 
-    private boolean fillTargetList() {
-        for (JSONDataType element:mJSONList) {
-            InternalDataType temp = findInInternalList(element.getField_name_eng());
-            try {
-                if (temp.getField_name_eng().equals(element.getField_name_eng())) {
-
-                }
-            }
-            catch (NullPointerException e) {
-                Log.e(this.getClass().getSimpleName(), "Error with transformation to InternalDataType", e);
-                return false;
-            }
-        }
-        return true;
-    }
-
     private void makeTargetListFrom() {}
 
     @Nullable
-    private InternalDataType findInInternalList(final String field_name_eng) {
+    private InternalDataType findInInternalList(final String field_name_eng) { // TODO here is a little crutch, must find substitutions
         Iterator iterator = mInternalList.iterator();
 
         while(iterator.hasNext()) {
