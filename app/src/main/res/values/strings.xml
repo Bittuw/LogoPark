@@ -42,7 +42,10 @@
 
     <string name="Primary_Key">pk</string>
     <string name="Secondary_Key">sc</string>
+
     <string name="SubGroup_Key">sg</string>
     <string name="SubGroupSecondary_Key">sk</string>
+
+    <string name="splitter">__</string>
 
 </resources>

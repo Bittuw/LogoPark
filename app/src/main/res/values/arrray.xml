@@ -30,28 +30,36 @@
         <item>location</item>
     </string-array>
 
+    <string-array name="filter">
+        <item>pk__status</item>
+        <item>pk__info</item>
+        <item>pk__company</item>
+        <item>pk__created</item>
+        <item>sc__number</item>
+    </string-array>
+
     <string-array name="translate">
-        <item>pr__status__Статус</item>
+        <item>pk__status__Статус</item>
         <item>sc__name__Название__status</item>
 
-        <item>pr__info__Информация</item>
-        <item>sc__drivername__Имя водителя</item>
-        <item>sc__govnumber__Гос. номер</item>
-        <item>sc__cartype__Тип</item>
-        <item>sc__visit__Цель</item>
-        <item>sc__document__Документ</item>
+        <item>pk__info__Информация</item>
+        <item>sc__drivername__Имя водителя__info</item>
+        <item>sc__govnumber__Гос. номер__info</item>
+        <item>sc__cartype__Тип__info</item>
+        <item>sc__visit__Цель__info</item>
+        <item>sc__document__Документ__info</item>
 
-        <item>pr__number__Номер</item>
+        <item>pk__created__Создан</item>
+        <item>sc__post___Пост__created</item>
+        <item>sc__phone_local__Лок. номер__created</item>
 
-        <item>pr__created__Создан</item>
-        <item>sc__post___Пост</item>
-        <item>sc__phone_local__Лок. номер</item>
+        <item>pk__company__Компания</item>
+        <item>sc__location__Назначение__company</item>
 
-        <item>pr__company__Кмопания</item>
-        <item>sc__location__Назначение</item>
+        <item>pk__other__Прочее</item>
+        <item>sc__name__Номер__created__other</item>
+        <item>sc__number__Номер</item>
 
-        <item>sg__other__Прочее</item>
-        <item>sk__name__Номер__created</item>
     </string-array>
 
     <string-array name="translate_key">
